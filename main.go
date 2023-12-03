@@ -1,6 +1,7 @@
 package main
 
 import (
+	"changeme/src"
 	"embed"
 
 	"github.com/wailsapp/wails/v2"
@@ -16,17 +17,20 @@ var icon []byte
 func main() {
 	// Create an instance of the app structure
 	app := NewApp()
+	DbManager := src.DbManager{}
 
 	// Create application with options
 	err := wails.Run(&options.App{
-		Title:            "wails-events",
+		Title:            "Rosa",
 		Width:            1650,
 		Height:           1030,
 		Assets:           assets,
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		OnStartup:        app.startup,
+
 		Bind: []interface{}{
 			app,
+			&DbManager,
 		},
 	})
 

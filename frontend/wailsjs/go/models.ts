@@ -19,3 +19,22 @@ export namespace main {
 
 }
 
+export namespace manifest {
+	
+	export class Manifest {
+	    name: string;
+	    pubsub: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Manifest(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.pubsub = source["pubsub"];
+	    }
+	}
+
+}
+
