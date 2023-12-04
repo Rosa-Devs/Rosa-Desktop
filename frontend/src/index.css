@@ -105,3 +105,29 @@
 .upload-popup button:hover {
   background-color: #0056b3;
 }
+
+
+.calm-gradient-background {
+  background: linear-gradient(135deg, rgb(151, 35, 134), rgb(134, 29, 80), rgb(151, 34, 34));
+  background-size: 400% 400%;
+  animation: gradientAnimation 130s ease infinite;
+  min-height: 100vh;
+}
+
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+
+
+
+
+

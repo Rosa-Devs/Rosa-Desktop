@@ -1,6 +1,6 @@
 import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements } from "react-router-dom";
 import Home from "./pages/Home";
-import ChatBar from "./pages/ChatBar";
+import ChatBar from "./pages/RightBar";
 import { useEffect } from "react";
 import { StartManager } from "../wailsjs/go/src/DbManager";
 
@@ -23,7 +23,9 @@ function Router() {
       console.log("Db manager started");
     }, []);
     return (
-       <RouterProvider router={router} /> 
+    <div className="calm-gradient-background">
+      <RouterProvider router={router} /> 
+    </div>
     )
 }
 
