@@ -48,11 +48,11 @@ const ContextMenu: React.FC<{ onDelete: () => void; Close: () => void; xPos: num
 };
 
 // Buble component
-const Buble: React.FC<{ contact: manifest.Manifest }> = ({ contact }) => {
+const Buble: React.FC<{ contact: manifest.Manifest; setManifest: React.Dispatch<React.SetStateAction<any>> }> = ({ contact, setManifest }) => {
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
 
   const handleBtnClick = () => {
-    console.log(contact.name);
+    setManifest(contact) 
   };
 
   const handleContextMenu = (event: React.MouseEvent<HTMLButtonElement>) => {

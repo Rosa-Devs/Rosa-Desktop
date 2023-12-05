@@ -21,6 +21,9 @@ type DbManager struct {
 	Started bool
 	DbPath  string
 
+	//TEST
+	Name string
+
 	ctx context.Context
 	h   host.Host
 	ps  *pubsub.PubSub
@@ -30,7 +33,15 @@ type DbManager struct {
 	Manifest_DB db.Database
 }
 
-func (d *DbManager) StartManager(dbPath string) {
+func (d *DbManager) GetProfile() string {
+	if d.Started == false {
+		return "none"
+	}
+	return d.Name
+}
+
+func (d *DbManager) StartManager(dbPath string, N string) {
+	d.Name = N
 
 	if d.Started == true {
 		log.Println("Dbs Manager already started..")

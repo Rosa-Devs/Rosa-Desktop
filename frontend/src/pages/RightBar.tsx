@@ -4,7 +4,7 @@ import { manifest } from "../../wailsjs/go/models";
 import Buble from '../itemkit/ChatBuble'; // Import the Buble component if not already imported
 import { AddManifets } from '../../wailsjs/go/src/DbManager';
 
-const RightSidebar: React.FC = () => {
+const RightSidebar = ({ setManifest }: { setManifest: React.Dispatch<React.SetStateAction<any>> }) => {
   const [contacts, setContacts] = useState<manifest.Manifest[] | null>(null);
   const [isUploadPopupOpen, setIsUploadPopupOpen] = useState(false);
 
@@ -16,10 +16,19 @@ const RightSidebar: React.FC = () => {
       } catch (error) {
         console.error('Error fetching contacts:', error);
       }
+      setTimeout(() => {
+        fetchContacts();
+      }, 5000);
     };
 
     fetchContacts();
   }, []);
+
+  // useEffect(() => {
+  //   if (contacts !== null) {
+  //     setManifest(contacts[0])
+  //   }
+  // })
 
   const handleAddManifest = () => {
     setIsUploadPopupOpen(true);
@@ -71,7 +80,7 @@ const RightSidebar: React.FC = () => {
       ) : (
         <div className="content">
           {contacts?.map((contact) => (
-            <Buble key={contact.pubsub} contact={contact} />
+            <Buble key={contact.pubsub} contact={contact} setManifest={setManifest} />
           ))}
           <div className="add-button-container">
             <button onClick={handleAddManifest} className="add-button">Add</button>

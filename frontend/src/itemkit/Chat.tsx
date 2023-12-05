@@ -1,14 +1,14 @@
 // Chat.tsx
 
 import React, { useState, useEffect } from 'react';
+import { GetMessages, NewMessage } from '../../wailsjs/go/src/DbManager';
+import { src, manifest } from '../../wailsjs/go/models';
 
-interface Message {
-  text: string;
-  sender: 'user' | 'other';
-}
 
-const Chat: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
+
+
+const Chat: React.FC<{ manifest: manifest.Manifest }> = ({ manifest }) => {
+  const [messages, setMessages] = useState<src.Message[]>([]);
   const [newMessage, setNewMessage] = useState<string>('');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -17,11 +17,64 @@ const Chat: React.FC = () => {
 
   const handleSend = () => {
     if (newMessage.trim() !== '') {
-      setMessages([...messages, { text: newMessage, sender: 'user' }]);
+      //setMessages([...messages, { text: newMessage, sender: 'user' }]);
       setNewMessage('');
+
+      NewMessage(manifest, newMessage)
+
+      
       // You can handle sending the message to the server or any other logic here
     }
   };
+
+  //console.log("My manifet: " + manifest.name)
+
+//   const fetchMsg = async () => {
+//   try {
+//     // Make your asynchronous API call or fetch data here
+//     const data = await GetMessages(manifest);
+//     console.log(data)   
+//     return data;
+//   } catch (error) {
+//     console.error('Error fetching data:', error);
+//     return null;
+//   }
+// };
+
+const fetchMsg = async () => {
+  try {
+    // Make your asynchronous API call or fetch data here
+    const data = await GetMessages(manifest);
+    console.log(data);
+
+    data.sort((a, b) => {
+      const timei = new Date(a.time).getTime();
+      const timej = new Date(b.time).getTime();
+
+      // Compare timestamps to sort from latest to oldest
+      return timej - timei;
+    });
+    
+    return data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    return null;
+  }
+};
+
+
+
+useEffect(() => {
+  const fetchDataInterval = setInterval(async () => {
+    const result = await fetchMsg();
+    if (result !== null) {
+      setMessages(result);
+    }
+  }, 1000); // Fetch data every 1 second
+
+  // Cleanup the interval when the component unmounts
+  return () => clearInterval(fetchDataInterval);
+}, [manifest]); // Include 'manifest' in the dependency array
 
   
   const onEnterPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -31,6 +84,7 @@ const Chat: React.FC = () => {
     }
   }
 
+  
   
 
   return (
@@ -48,7 +102,7 @@ const Chat: React.FC = () => {
                 message.sender === 'user' ? 'bg-purple-600 text-white ml-auto' : 'bg-gray-200 text-black mr-auto'
               }`}
             >
-              {message.text}
+              {message.data}
             </div>
           </div>
         ))}
