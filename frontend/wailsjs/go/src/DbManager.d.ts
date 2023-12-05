@@ -8,4 +8,6 @@ export function DeleteManifest(arg1:manifest.Manifest):Promise<void>;
 
 export function ManifestList():Promise<Array<manifest.Manifest>>;
 
+export function NewMessage(arg1:manifest.Manifest,arg2:Array<number>):Promise<void>;
+
 export function StartManager(arg1:string):Promise<void>;

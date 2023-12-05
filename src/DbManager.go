@@ -17,11 +17,6 @@ import (
 	"github.com/libp2p/go-libp2p/p2p/discovery/mdns"
 )
 
-type MStore struct {
-	Type int    `json:"type"`
-	Data []byte `json:"data"`
-}
-
 type DbManager struct {
 	Started bool
 	DbPath  string
@@ -152,7 +147,7 @@ func (d *DbManager) AddManifets(manifestJson string) error {
 
 	m_s := new(MStore)
 	m_s.Data, err = m.Serialize()
-	m_s.Type = 1
+	m_s.Type = MStore_TYPE_Manifet
 	if err != nil {
 		log.Panicln("Fail to serialize manifest", err)
 		return err

@@ -23,21 +23,15 @@ const Chat: React.FC = () => {
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault(); // Prevents the default behavior of the Enter key (e.g., adding a new line)
-      handleSend();
+  
+  const onEnterPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if(e.keyCode == 13 && e.shiftKey == false) {
+      e.preventDefault();
+      handleSend()
     }
-  };
+  }
 
-  useEffect(() => {
-    // Simulate initial messages
-    setMessages([
-      { text: 'Hello!', sender: 'other' },
-      { text: 'Hi there!', sender: 'user' },
-      { text: 'How are you?', sender: 'other' },
-    ]);
-  }, []);
+  
 
   return (
     <div className="flex flex-col h-screen">
@@ -63,9 +57,10 @@ const Chat: React.FC = () => {
         <input
           type="text"
           value={newMessage}
-          onKeyDown={handleKeyDown}
+          onKeyDown={onEnterPress}
+          // onKeyDown={handleKeyDown}
           onChange={handleInputChange}
-          placeholder="My msg is?..."
+          placeholder="SELECT FROM * ..."
           className="flex-1 p-2 border rounded-md mr-2"
         />
         <button onClick={handleSend} className="px-4 py-2 bg-purple-700 text-white rounded-md">

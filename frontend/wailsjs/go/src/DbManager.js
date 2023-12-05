@@ -14,6 +14,10 @@ export function ManifestList() {
   return window['go']['src']['DbManager']['ManifestList']();
 }
 
+export function NewMessage(arg1, arg2) {
+  return window['go']['src']['DbManager']['NewMessage'](arg1, arg2);
+}
+
 export function StartManager(arg1) {
   return window['go']['src']['DbManager']['StartManager'](arg1);
 }
