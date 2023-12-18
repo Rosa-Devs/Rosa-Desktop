@@ -180,11 +180,17 @@ func (d *DbManager) AddManifets(manifestJson string) error {
 		log.Println("Fail to marshal manifest", err)
 	}
 
+	//Create new db
+	db := d.Driver.GetDb(*m)
+	db.StartWorker(15)
+	d.dbs[*m] = &db
+
 	err = pool.Record(jsonData)
 	if err != nil {
 		log.Println("Fail to update pool", err)
 		return err
 	}
+
 	return nil
 }
 
@@ -195,7 +201,7 @@ func (d *DbManager) ManifestList() []manifest.Manifest {
 	}
 	err := d.Manifest_DB.CreatePool("manifests")
 	if err != nil {
-		log.Println("Not recreating pool:", err)
+		//log.Println("Not recreating pool:", err)
 	}
 	//READ MANIFET DB AND CREATE DBS
 	pool, err := d.Manifest_DB.GetPool("manifests")

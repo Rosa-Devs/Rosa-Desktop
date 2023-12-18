@@ -84,6 +84,7 @@ const RightSidebar = ({ setManifest }: { setManifest: React.Dispatch<React.SetSt
           ))}
           <div className="add-button-container">
             <button onClick={handleAddManifest} className="add-button">Add</button>
+            
           </div>
         </div>
       )}
