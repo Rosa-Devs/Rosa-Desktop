@@ -1,8 +1,9 @@
 // Chat.tsx
 
 import React, { useState, useEffect } from 'react';
-import { GetMessages, NewMessage } from '../../wailsjs/go/src/DbManager';
+import { ChangeListeningDb, GetMessages, GetProfile, NewMessage } from '../../wailsjs/go/src/DbManager';
 import { src, manifest } from '../../wailsjs/go/models';
+import { EventsOn, EventsOff } from '../../wailsjs/runtime/runtime'
 
 
 
@@ -27,54 +28,33 @@ const Chat: React.FC<{ manifest: manifest.Manifest }> = ({ manifest }) => {
     }
   };
 
-  //console.log("My manifet: " + manifest.name)
+  
 
-//   const fetchMsg = async () => {
-//   try {
-//     // Make your asynchronous API call or fetch data here
-//     const data = await GetMessages(manifest);
-//     console.log(data)   
-//     return data;
-//   } catch (error) {
-//     console.error('Error fetching data:', error);
-//     return null;
-//   }
-// };
+  const fetchMsg = async () => {
+    try {
+      // Make your asynchronous API call or fetch data here
+      const data = await GetMessages(manifest);
+      //console.log(data);
 
-const fetchMsg = async () => {
-  try {
-    // Make your asynchronous API call or fetch data here
-    const data = await GetMessages(manifest);
-    console.log(data);
-
-    data.sort((a, b) => {
-      const timei = new Date(a.time).getTime();
-      const timej = new Date(b.time).getTime();
-
-      // Compare timestamps to sort from latest to oldest
-      return timej - timei;
-    });
-    
-    return data;
-  } catch (error) {
-    console.error('Error fetching data:', error);
-    return null;
-  }
-};
-
-
-
-useEffect(() => {
-  const fetchDataInterval = setInterval(async () => {
-    const result = await fetchMsg();
-    if (result !== null) {
-      setMessages(result);
+      
+      return data;
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      return null;
     }
-  }, 1000); // Fetch data every 1 second
+  };
 
-  // Cleanup the interval when the component unmounts
-  return () => clearInterval(fetchDataInterval);
-}, [manifest]); // Include 'manifest' in the dependency array
+  const fetchDataInterval = async () => {
+      const result = await fetchMsg();
+      if (result !== null) {
+        setMessages(result);
+      }
+  } // Fetch msg data
+
+  useEffect(() => {
+    // Fetch data on first run
+    fetchDataInterval()
+  }, [manifest]);
 
   
   const onEnterPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -84,7 +64,37 @@ useEffect(() => {
     }
   }
 
-  
+
+  const [nickname, setNickname] = useState('User');
+  useEffect(() => {
+    const getProfile = async () => {
+      try {
+        // Call the GetProfileFunc function to fetch the profile data
+        const data = await GetProfile();
+
+        // Set the profile data in the component state
+        setNickname(data)
+      } catch (error) {
+        console.log("Err getting username.") 
+      }
+    };
+
+    // Call the getProfile function when the component mounts
+    getProfile();
+  }, []);
+
+  useEffect(() => {
+    ChangeListeningDb(manifest) 
+  }, [manifest])
+
+  useEffect(() => {
+    EventsOff("update")
+    EventsOn("update", () => {
+      // Fetch data on update event
+      fetchDataInterval()
+      console.log("Db update event")
+    })
+  })
   
 
   return (
@@ -94,12 +104,12 @@ useEffect(() => {
           <div
             key={index}
             className={`mb-4 ${
-              message.sender === 'user' ? 'self-end' : 'self-start'
+              message.sender === nickname ? 'self-end' : 'self-start'
             } w-3/4`}
           >
             <div
               className={`p-4 max-w-xs mx-2 rounded-lg ${
-                message.sender === 'user' ? 'bg-purple-600 text-white ml-auto' : 'bg-gray-200 text-black mr-auto'
+                message.sender === nickname ? 'bg-purple-600 text-white ml-auto' : 'bg-gray-200 text-black mr-auto'
               }`}
             >
               {message.data}

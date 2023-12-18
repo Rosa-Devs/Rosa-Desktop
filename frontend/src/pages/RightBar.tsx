@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ManifestList } from "../../wailsjs/go/src/DbManager";
+import { ChangeListeningDb, ManifestList } from "../../wailsjs/go/src/DbManager";
 import { manifest } from "../../wailsjs/go/models";
 import Buble from '../itemkit/ChatBuble'; // Import the Buble component if not already imported
 import { AddManifets } from '../../wailsjs/go/src/DbManager';
@@ -18,7 +18,7 @@ const RightSidebar = ({ setManifest }: { setManifest: React.Dispatch<React.SetSt
       }
       setTimeout(() => {
         fetchContacts();
-      }, 5000);
+      }, 2000);
     };
 
     fetchContacts();

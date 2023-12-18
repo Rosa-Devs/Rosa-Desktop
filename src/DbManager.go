@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"sync"
 	"time"
 
 	"github.com/Rosa-Devs/Database/src/manifest"
@@ -31,6 +32,12 @@ type DbManager struct {
 
 	Driver      *db.DB
 	Manifest_DB db.Database
+
+	//Event server
+	stopCh     chan struct{}
+	waitGrp    sync.WaitGroup
+	cancelFunc context.CancelFunc
+	wailsctx   context.Context
 }
 
 func (d *DbManager) GetProfile() string {
@@ -40,7 +47,12 @@ func (d *DbManager) GetProfile() string {
 	return d.Name
 }
 
+func (d *DbManager) OnWailsInit(ctx context.Context) {
+	d.wailsctx = ctx
+}
+
 func (d *DbManager) StartManager(dbPath string, N string) {
+	d.stopCh = make(chan struct{})
 	d.Name = N
 
 	if d.Started == true {

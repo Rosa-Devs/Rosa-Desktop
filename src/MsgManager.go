@@ -1,13 +1,70 @@
 package src
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
 	"time"
 
 	"github.com/Rosa-Devs/Database/src/manifest"
+	db "github.com/Rosa-Devs/Database/src/store"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
+
+func (Mgr *DbManager) DatabaseUpdateEventServer(ctx context.Context, m manifest.Manifest) {
+	Mgr.waitGrp.Add(1)
+
+	go func(ctx context.Context, m manifest.Manifest, M *DbManager) {
+		defer M.waitGrp.Done()
+
+		// Get database
+		database, ok := M.dbs[m]
+		if !ok {
+			log.Println("Fail to get db!")
+			return
+		}
+
+		// Subscribe to event channel
+		eventListener := make(chan db.Event)
+		database.EventBus.Subscribe(db.DbUpdateEvent, eventListener)
+
+		for {
+			select {
+			case <-ctx.Done():
+				log.Println("DatabaseUpdateEventServer exiting.")
+				return
+			case <-eventListener:
+				runtime.EventsEmit(M.wailsctx, "update")
+				time.Sleep(time.Second)
+				//log.Println("Event")
+			}
+		}
+	}(ctx, m, Mgr)
+}
+
+func (Mgr *DbManager) ChangeListeningDb(m manifest.Manifest) {
+	if Mgr.Started == false {
+		log.Println("Cannot change event server because DBMgr not running")
+		return
+	}
+
+	// Create a cancelable context
+	ctx, cancel := context.WithCancel(context.Background())
+
+	// Replace the existing cancel function with the new one
+	// to ensure that the old goroutine will exit.
+	if Mgr.cancelFunc != nil {
+		Mgr.cancelFunc()
+	}
+
+	// Set the new cancel function
+	Mgr.cancelFunc = cancel
+
+	// Create new DatabaseUpdateEventServer with new data!
+	log.Println("Recreating events server")
+	Mgr.DatabaseUpdateEventServer(ctx, m)
+}
 
 func (Mgr *DbManager) NewMessage(m manifest.Manifest, msg string) error {
 
@@ -58,7 +115,7 @@ func (Mgr *DbManager) NewMessage(m manifest.Manifest, msg string) error {
 func (Mgr *DbManager) GetMessages(m manifest.Manifest) ([]Message, error) {
 
 	db, ok := Mgr.dbs[m]
-	log.Println(Mgr.dbs)
+	//log.Println(Mgr.dbs)
 	if !ok {
 		log.Println("Failed to get database from dbs manager.")
 		return nil, fmt.Errorf("Failed to get database from dbs manager 1")
@@ -66,7 +123,7 @@ func (Mgr *DbManager) GetMessages(m manifest.Manifest) ([]Message, error) {
 
 	err := db.CreatePool(MsgPool)
 	if err != nil {
-		log.Println("Not recreating pool:", err)
+		//log.Println("Not recreating pool:", err)
 	}
 
 	pool, err := db.GetPool(MsgPool)
@@ -95,7 +152,7 @@ func (Mgr *DbManager) GetMessages(m manifest.Manifest) ([]Message, error) {
 	// 	return timei.After(timej)
 	// })
 
-	log.Println(msg_data)
+	//log.Println(msg_data)
 
 	return msg_data, nil
 }

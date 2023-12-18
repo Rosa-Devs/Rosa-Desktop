@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { manifest } from "../../wailsjs/go/models";
-import { DeleteManifest } from "../../wailsjs/go/src/DbManager";
+import { ChangeListeningDb, DeleteManifest } from "../../wailsjs/go/src/DbManager";
 
 // ContextMenu component
 
@@ -52,7 +52,7 @@ const Buble: React.FC<{ contact: manifest.Manifest; setManifest: React.Dispatch<
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
 
   const handleBtnClick = () => {
-    setManifest(contact) 
+    setManifest(contact)
   };
 
   const handleContextMenu = (event: React.MouseEvent<HTMLButtonElement>) => {

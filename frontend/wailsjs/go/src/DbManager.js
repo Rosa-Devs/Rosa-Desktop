@@ -6,6 +6,14 @@ export function AddManifets(arg1) {
   return window['go']['src']['DbManager']['AddManifets'](arg1);
 }
 
+export function ChangeListeningDb(arg1) {
+  return window['go']['src']['DbManager']['ChangeListeningDb'](arg1);
+}
+
+export function DatabaseUpdateEventServer(arg1, arg2) {
+  return window['go']['src']['DbManager']['DatabaseUpdateEventServer'](arg1, arg2);
+}
+
 export function DeleteManifest(arg1) {
   return window['go']['src']['DbManager']['DeleteManifest'](arg1);
 }
