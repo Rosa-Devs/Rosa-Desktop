@@ -79,9 +79,11 @@ const RightSidebar = ({ setManifest }: { setManifest: React.Dispatch<React.SetSt
         <p>No rooms!</p>
       ) : (
         <div className="content">
-          {contacts?.map((contact) => (
-            <Buble key={contact.pubsub} contact={contact} setManifest={setManifest} />
-          ))}
+          <div className="bubles">
+            {contacts?.map((contact) => (
+              <Buble key={contact.pubsub} contact={contact} setManifest={setManifest} />
+            ))}
+          </div>
           <div className="add-button-container">
             <button onClick={handleAddManifest} className="add-button">Add</button>
             

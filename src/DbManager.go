@@ -42,7 +42,7 @@ type DbManager struct {
 
 func (d *DbManager) GetProfile() string {
 	if d.Started == false {
-		return "none"
+		return ""
 	}
 	return d.Name
 }

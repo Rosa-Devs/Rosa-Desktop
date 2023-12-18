@@ -72,8 +72,8 @@ func (Mgr *DbManager) NewMessage(m manifest.Manifest, msg string) error {
 
 	currentTime := time.Now().UTC()
 
-	// Format the time in RFC3339 format
-	timestamp := currentTime.Format(time.RFC3339)
+	// Format the time in the desired format
+	timestamp := currentTime.Format("2006-01-02T15:04:05.000")
 
 	msg_stuct.Data = msg
 	msg_stuct.Sender = Mgr.Name

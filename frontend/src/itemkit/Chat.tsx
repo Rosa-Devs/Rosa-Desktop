@@ -36,7 +36,10 @@ const Chat: React.FC<{ manifest: manifest.Manifest }> = ({ manifest }) => {
       const data = await GetMessages(manifest);
       //console.log(data);
 
-      
+      //console.log(data[0].time)
+      //console.log(new Date(data[0].time).getTime())
+      data.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
+      //console.log(data)
       return data;
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -46,7 +49,10 @@ const Chat: React.FC<{ manifest: manifest.Manifest }> = ({ manifest }) => {
 
   const fetchDataInterval = async () => {
       const result = await fetchMsg();
+
+
       if (result !== null) {
+        
         setMessages(result);
       }
   } // Fetch msg data
@@ -71,13 +77,23 @@ const Chat: React.FC<{ manifest: manifest.Manifest }> = ({ manifest }) => {
       try {
         // Call the GetProfileFunc function to fetch the profile data
         const data = await GetProfile();
-
+        
         // Set the profile data in the component state
-        setNickname(data)
+        setNickname(data);
+        console.log(nickname, data)
+
+        if (data === "") {
+          setTimeout(() => {
+            getProfile();
+          }, 2000); // 5000 milliseconds = 5 seconds
+        }
       } catch (error) {
-        console.log("Err getting username.") 
+        console.error("Error getting username:", error);
+
+        // Retry after 5 seconds if data is an empty string
+        
       }
-    };
+  };
 
     // Call the getProfile function when the component mounts
     getProfile();
