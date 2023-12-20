@@ -12,6 +12,7 @@ import (
 	"github.com/Rosa-Devs/Database/src/manifest"
 	db "github.com/Rosa-Devs/Database/src/store"
 	"github.com/libp2p/go-libp2p"
+	dht "github.com/libp2p/go-libp2p-kad-dht"
 	pubsub "github.com/libp2p/go-libp2p-pubsub"
 	"github.com/libp2p/go-libp2p/core/host"
 	"github.com/libp2p/go-libp2p/core/peer"
@@ -27,6 +28,7 @@ type DbManager struct {
 
 	ctx context.Context
 	h   host.Host
+	dht *dht.IpfsDHT
 	ps  *pubsub.PubSub
 	dbs map[manifest.Manifest]*db.Database
 
@@ -79,6 +81,10 @@ func (d *DbManager) StartManager(dbPath string, N string) {
 	if err := setupDiscovery(d.h); err != nil {
 		panic(err)
 	}
+
+	d.dht = init_DHT(d.ctx, d.h)
+	go bootstrap(d.ctx, d.dht)
+	go boot(d.ctx, "rosa", d.h)
 
 	d.Driver = &db.DB{
 		H:  d.h,
