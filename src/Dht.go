@@ -2,12 +2,15 @@ package src
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"sync"
 
 	dht "github.com/libp2p/go-libp2p-kad-dht"
 	"github.com/libp2p/go-libp2p/core/host"
 	"github.com/libp2p/go-libp2p/core/peer"
+	drouting "github.com/libp2p/go-libp2p/p2p/discovery/routing"
+	dutil "github.com/libp2p/go-libp2p/p2p/discovery/util"
 )
 
 func bootstrap(ctx context.Context, dht *dht.IpfsDHT) {
@@ -31,7 +34,7 @@ func init_DHT(ctx context.Context, host host.Host) *dht.IpfsDHT {
 
 }
 
-func boot(ctx context.Context, randevu string, host host.Host) {
+func boot(ctx context.Context, host host.Host, d *dht.IpfsDHT) {
 
 	var wg sync.WaitGroup
 	for _, peerAddr := range dht.DefaultBootstrapPeers {
@@ -47,5 +50,31 @@ func boot(ctx context.Context, randevu string, host host.Host) {
 		}()
 	}
 	wg.Wait()
+
+	routingDiscovery := drouting.NewRoutingDiscovery(d)
+	dutil.Advertise(ctx, routingDiscovery, Randevuz)
+
+	// Look for others who have announced and attempt to connect to them
+	anyConnected := false
+	for !anyConnected {
+		fmt.Println("Searching for peers...")
+		peerChan, err := routingDiscovery.FindPeers(ctx, Randevuz)
+		if err != nil {
+			panic(err)
+		}
+		for peer := range peerChan {
+			if peer.ID == host.ID() {
+				continue // No self connection
+			}
+			err := host.Connect(ctx, peer)
+			if err != nil {
+				fmt.Printf("[DHT] Failed connecting to %s, error: %s\n", peer.ID, err)
+			} else {
+				fmt.Println("[DHT]  Connected to:", peer.ID)
+				anyConnected = true
+			}
+		}
+	}
+	fmt.Println("[DHT] Peer discovery complete")
 
 }

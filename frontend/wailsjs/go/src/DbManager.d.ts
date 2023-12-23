@@ -20,4 +20,6 @@ export function ManifestList():Promise<Array<manifest.Manifest>>;
 
 export function NewMessage(arg1:manifest.Manifest,arg2:string):Promise<void>;
 
+export function Nodes():Promise<number>;
+
 export function StartManager(arg1:string,arg2:string):Promise<void>;

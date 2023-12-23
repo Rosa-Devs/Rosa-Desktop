@@ -19,6 +19,8 @@ import (
 	"github.com/libp2p/go-libp2p/p2p/discovery/mdns"
 )
 
+const Randevuz = "RosaApp"
+
 type DbManager struct {
 	Started bool
 	DbPath  string
@@ -84,7 +86,7 @@ func (d *DbManager) StartManager(dbPath string, N string) {
 
 	d.dht = init_DHT(d.ctx, d.h)
 	go bootstrap(d.ctx, d.dht)
-	go boot(d.ctx, "rosa", d.h)
+	go boot(d.ctx, d.h, d.dht)
 
 	d.Driver = &db.DB{
 		H:  d.h,
@@ -102,7 +104,7 @@ func (d *DbManager) StartManager(dbPath string, N string) {
 
 	err = d.Manifest_DB.CreatePool("manifests")
 	if err != nil {
-		log.Println("Not recreating pool:", err)
+		//log.Println("Not recreating pool:", err)
 	}
 	//READ MANIFET DB AND CREATE DBS
 	pool, err := d.Manifest_DB.GetPool("manifests")
@@ -148,7 +150,7 @@ func (d *DbManager) StartManager(dbPath string, N string) {
 		}
 		//Get db by manifest
 		db := d.Driver.GetDb(*m)
-		db.StartWorker(15)
+		db.StartWorker(35)
 		d.dbs[*m] = &db
 	}
 
@@ -188,7 +190,7 @@ func (d *DbManager) AddManifets(manifestJson string) error {
 
 	//Create new db
 	db := d.Driver.GetDb(*m)
-	db.StartWorker(15)
+	db.StartWorker(60)
 	d.dbs[*m] = &db
 
 	err = pool.Record(jsonData)
@@ -302,9 +304,6 @@ func (d *DbManager) DeleteManifest(m manifest.Manifest) error {
 // DiscoveryInterval is how often we re-publish our mDNS records.
 const DiscoveryInterval = time.Hour
 
-// DiscoveryServiceTag is used in our mDNS advertisements to discover other chat peers.
-const DiscoveryServiceTag = "pubsub-chat-example"
-
 // discoveryNotifee gets notified when we find a new peer via mDNS discovery
 type discoveryNotifee struct {
 	h host.Host
@@ -325,6 +324,6 @@ func (n *discoveryNotifee) HandlePeerFound(pi peer.AddrInfo) {
 // This lets us automatically discover peers on the same LAN and connect to them.
 func setupDiscovery(h host.Host) error {
 	// setup mDNS discovery to find local peers
-	s := mdns.NewMdnsService(h, DiscoveryServiceTag, &discoveryNotifee{h: h})
+	s := mdns.NewMdnsService(h, Randevuz, &discoveryNotifee{h: h})
 	return s.Start()
 }

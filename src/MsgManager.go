@@ -66,6 +66,13 @@ func (Mgr *DbManager) ChangeListeningDb(m manifest.Manifest) {
 	Mgr.DatabaseUpdateEventServer(ctx, m)
 }
 
+func (Mgr *DbManager) Nodes() int {
+	if Mgr.Started == false {
+		return 0
+	}
+	return len(Mgr.dht.Host().Network().Peers())
+}
+
 func (Mgr *DbManager) NewMessage(m manifest.Manifest, msg string) error {
 
 	msg_stuct := new(Message)
@@ -81,7 +88,6 @@ func (Mgr *DbManager) NewMessage(m manifest.Manifest, msg string) error {
 	msg_stuct.DataType = MessageType
 
 	//GET DB FROM DATABASE MGR
-	//log.Println(Mgr.h.Peerstore().Peers())
 	db, ok := Mgr.dbs[m]
 	if !ok {
 		log.Println("Failed to get database from dbs manager.")

@@ -13,6 +13,12 @@
   height: 100vh;
 }
 
+.dht {
+  white-space: pre-wrap;
+  overflow: auto;
+  color: white;
+}
+
 .sidebar-btn {
   background: none;
   border: none;

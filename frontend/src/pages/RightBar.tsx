@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChangeListeningDb, ManifestList } from "../../wailsjs/go/src/DbManager";
+import { ChangeListeningDb, ManifestList, Nodes } from "../../wailsjs/go/src/DbManager";
 import { manifest } from "../../wailsjs/go/models";
 import Buble from '../itemkit/ChatBuble'; // Import the Buble component if not already imported
 import { AddManifets } from '../../wailsjs/go/src/DbManager';
@@ -73,6 +73,23 @@ const RightSidebar = ({ setManifest }: { setManifest: React.Dispatch<React.SetSt
     });
   };
 
+  const [nodes, setnodes] = useState(0);
+  useEffect(() => {
+    const fetchNodes = async () => {
+      try {
+        const contactsData = await Nodes();
+        setnodes(contactsData);
+      } catch (error) {
+        console.error('Error fetching contacts:', error);
+      }
+      setTimeout(() => {
+        fetchNodes();
+      }, 2000);
+    };
+
+    fetchNodes();
+  }, []);
+
   return (
     <div className="sidebar">
       {contacts !== null && contacts.length === 0 ? (
@@ -86,7 +103,7 @@ const RightSidebar = ({ setManifest }: { setManifest: React.Dispatch<React.SetSt
           </div>
           <div className="add-button-container">
             <button onClick={handleAddManifest} className="add-button">Add</button>
-            
+            <p className='dht'>DHT: {nodes}</p>
           </div>
         </div>
       )}
