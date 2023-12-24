@@ -17,7 +17,7 @@ function Router() {
 
     useEffect(() => {
       setTimeout(() => {
-        StartManager("db1_test", "Mihalic20401")
+        StartManager("db1_test", "Mihalic2040")
       }, 1000)
 
       console.log("Db manager started");

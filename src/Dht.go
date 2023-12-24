@@ -62,17 +62,20 @@ func boot(ctx context.Context, host host.Host, d *dht.IpfsDHT) {
 		if err != nil {
 			panic(err)
 		}
-		for peer := range peerChan {
-			if peer.ID == host.ID() {
+		for p := range peerChan {
+			if p.ID == host.ID() {
 				continue // No self connection
 			}
-			err := host.Connect(ctx, peer)
-			if err != nil {
-				fmt.Printf("[DHT] Failed connecting to %s, error: %s\n", peer.ID, err)
-			} else {
-				fmt.Println("[DHT]  Connected to:", peer.ID)
-				anyConnected = true
-			}
+			go func() {
+				err := host.Connect(ctx, p)
+				if err != nil {
+					fmt.Println("[DHT] Failed connecting to ", p.ID)
+				} else {
+					fmt.Println("[DHT] Connected to:", p.ID)
+
+				}
+			}()
+			anyConnected = true
 		}
 	}
 	fmt.Println("[DHT] Peer discovery complete")
