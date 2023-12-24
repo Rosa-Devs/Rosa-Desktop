@@ -69,8 +69,15 @@ func (d *DbManager) StartManager(dbPath string, N string) {
 	d.dbs = make(map[manifest.Manifest]*db.Database)
 	d.ctx = context.Background()
 
+	opts := libp2p.ChainOptions(
+		libp2p.EnableNATService(),
+		libp2p.EnableRelayService(),
+		libp2p.EnableRelay(),
+		libp2p.EnableHolePunching(),
+	)
+
 	var err error
-	d.h, err = libp2p.New()
+	d.h, err = libp2p.New(opts)
 	if err != nil {
 		panic(err)
 	}
