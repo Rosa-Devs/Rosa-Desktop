@@ -3,12 +3,14 @@ import Home from "./pages/Home";
 import ChatBar from "./pages/RightBar";
 import { useEffect } from "react";
 import { StartManager } from "../wailsjs/go/src/DbManager";
+import CreateChat from "./pages/CreateChat";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<Home />}>
       {/*<Route path="dashboard" element={<Home />} /> */}
       {/* ... etc. */}
+      <Route path="/create" element={<CreateChat/>}></Route>
     </Route>
   )
 );

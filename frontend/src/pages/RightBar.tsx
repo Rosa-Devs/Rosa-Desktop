@@ -3,6 +3,11 @@ import { ChangeListeningDb, ManifestList, Nodes } from "../../wailsjs/go/src/DbM
 import { manifest } from "../../wailsjs/go/models";
 import Buble from '../itemkit/ChatBuble'; // Import the Buble component if not already imported
 import { AddManifets } from '../../wailsjs/go/src/DbManager';
+import { CgAdd } from "react-icons/cg";
+import { MdCreate } from "react-icons/md";
+import { useNavigate } from 'react-router-dom';
+
+
 
 const RightSidebar = ({ setManifest }: { setManifest: React.Dispatch<React.SetStateAction<any>> }) => {
   const [contacts, setContacts] = useState<manifest.Manifest[] | null>(null);
@@ -89,6 +94,10 @@ const RightSidebar = ({ setManifest }: { setManifest: React.Dispatch<React.SetSt
 
     fetchNodes();
   }, []);
+  
+  
+
+
 
   return (
     <div className="sidebar">
@@ -102,7 +111,8 @@ const RightSidebar = ({ setManifest }: { setManifest: React.Dispatch<React.SetSt
             ))}
           </div>
           <div className="add-button-container">
-            <button onClick={handleAddManifest} className="add-button">Add</button>
+            <button onClick={handleAddManifest} className="add-button"><CgAdd className='text-4xl'/></button><br />
+            <button onClick={() => {}} className="add-button"><MdCreate className='text-4xl'/></button>
             <p className='dht'>DHT: {nodes}</p>
           </div>
         </div>
@@ -111,7 +121,7 @@ const RightSidebar = ({ setManifest }: { setManifest: React.Dispatch<React.SetSt
       {isUploadPopupOpen && (
         <div className="upload-popup">
           <div className="upload-popup-content">
-            <input type="file" onChange={(e) => handleFileUpload(e.target.files![0])} />
+            <input type="file" className='upload-form' id='file-form' onChange={(e) => handleFileUpload(e.target.files![0])}/>
             <button onClick={handleCloseUploadPopup}>Close</button>
           </div>
         </div>
