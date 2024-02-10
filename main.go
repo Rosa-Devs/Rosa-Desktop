@@ -16,7 +16,7 @@ var icon []byte
 
 func main() {
 	// Create an instance of the app structure
-	app := NewApp()
+
 	DbManager := src.DbManager{}
 
 	// Create application with options
@@ -32,7 +32,6 @@ func main() {
 		CSSDragValue:    "drag",
 
 		Bind: []interface{}{
-			app,
 			&DbManager,
 		},
 	})

@@ -8,6 +8,8 @@ export function AddManifets(arg1:string):Promise<void>;
 
 export function ChangeListeningDb(arg1:manifest.Manifest):Promise<void>;
 
+export function CreateManifest(arg1:string,arg2:string):Promise<string>;
+
 export function DatabaseUpdateEventServer(arg1:context.Context,arg2:manifest.Manifest):Promise<void>;
 
 export function DeleteManifest(arg1:manifest.Manifest):Promise<void>;

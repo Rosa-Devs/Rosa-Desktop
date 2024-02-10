@@ -10,6 +10,10 @@ export function ChangeListeningDb(arg1) {
   return window['go']['src']['DbManager']['ChangeListeningDb'](arg1);
 }
 
+export function CreateManifest(arg1, arg2) {
+  return window['go']['src']['DbManager']['CreateManifest'](arg1, arg2);
+}
+
 export function DatabaseUpdateEventServer(arg1, arg2) {
   return window['go']['src']['DbManager']['DatabaseUpdateEventServer'](arg1, arg2);
 }

@@ -104,6 +104,7 @@ func (d *DbManager) StartManager(dbPath string, N string) {
 	m_db := manifest.Manifest{
 		Name:   "Manifests",
 		PubSub: manifest.GenerateNoise(15),
+		Chiper: manifest.GenerateNoise(32),
 	}
 
 	d.Driver.CreateDb(m_db)
@@ -162,6 +163,16 @@ func (d *DbManager) StartManager(dbPath string, N string) {
 	}
 
 	log.Println("All database are create and ready to use")
+}
+
+func (d *DbManager) CreateManifest(name string, opts string) string {
+
+	m_json, err := manifest.GenereateManifest(name, false, opts).Serialize()
+	if err != nil {
+		log.Println("Fail to create manifest")
+	}
+
+	return string(m_json)
 
 }
 
