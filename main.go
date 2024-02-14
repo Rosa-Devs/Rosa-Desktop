@@ -1,9 +1,9 @@
 package main
 
 import (
-	"changeme/src"
 	"embed"
 
+	"github.com/Rosa-Devs/Rosa-Desktop/core"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 )
@@ -17,7 +17,7 @@ var icon []byte
 func main() {
 	// Create an instance of the app structure
 
-	DbManager := src.DbManager{}
+	DbManager := core.DbManager{}
 
 	// Create application with options
 	err := wails.Run(&options.App{

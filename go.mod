@@ -1,4 +1,4 @@
-module changeme
+module github.com/Rosa-Devs/Rosa-Desktop
 
 go 1.21.3
 
