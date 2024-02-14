@@ -12,6 +12,7 @@ const Home = () => {
   const initialManifest = manifest.Manifest.createFrom({
     name: "Initial Name",
     pubsub: "Initial Pubsub",
+    optional: "{\"Image\": \"http://localhost\"}"
   });
 
   const [chatManifest, setManifest] = useState(initialManifest);

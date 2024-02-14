@@ -160,7 +160,7 @@ const CreateManifestPopUp: React.FC<CreateManifestPopUpProps> = ({ close }) => {
   const [uploaded, setUploaded] = useState(null as string | null);
 
   // the resulting cropped image
-  const [cropped, setCropped] = useState(null as string | null);
+  const [cropped, setCropped] = useState();
 
   // the reference of cropper element
   const cropperRef = createRef<ReactCropperElement>();
@@ -181,19 +181,19 @@ const CreateManifestPopUp: React.FC<CreateManifestPopUpProps> = ({ close }) => {
     const imageElement: any = cropperRef?.current;
     const cropper: any = imageElement?.cropper;
     setCropped(cropper.getCroppedCanvas().toDataURL())
+    return cropper.getCroppedCanvas().toDataURL()
   }
 
 
   const hanleCreateBtn = async () => {
     try {
-      onCrop();
       // Create manifest
 
       const jsonData: Optional = {
-        Image: cropped
+        Image: onCrop()
       };
 
-
+      console.log(onCrop())
 
       // Convert the JSON object to a JSON string
       const jsonString = JSON.stringify(jsonData);
@@ -203,6 +203,7 @@ const CreateManifestPopUp: React.FC<CreateManifestPopUpProps> = ({ close }) => {
       AddManifets(manifest)
 
       toast("New chanell created!")
+      close(false)
     } catch (error) {
       // Handle the error and show a toast message
       toast("Avatar not specified");

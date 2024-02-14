@@ -1,5 +1,5 @@
 
 
 export default interface Optional {
-    Image: string |null;
+    Image: string | undefined;
 }

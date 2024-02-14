@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { manifest } from "../../wailsjs/go/models";
 import { ChangeListeningDb, DeleteManifest } from "../../wailsjs/go/src/DbManager";
+import Optional from "../models/Optional";
 
 // ContextMenu component
 
@@ -73,6 +74,18 @@ const Buble: React.FC<{ contact: manifest.Manifest; setManifest: React.Dispatch<
     setContextMenuPosition({ x: 0, y: 0 });
   };
 
+  let optional_obj: Optional = { Image: "https://www.shutterstock.com/image-vector/default-avatar-profile-icon-social-600nw-1677509740.jpg" };  // Assuming an appropriate default value
+  if (contact.optional !== null && contact.optional !== undefined && contact.optional !== "") {
+      // Parse the JSON string into an object
+      optional_obj = JSON.parse(contact.optional);
+
+      // Now you can use optional_obj as needed
+      console.log(optional_obj);
+  } else {
+      // Handle the case when contact.optional is null or undefined
+      console.error("contact.optional is null or undefined");
+  }
+
   return (
     <div className="relative-container">
       <button
@@ -81,7 +94,7 @@ const Buble: React.FC<{ contact: manifest.Manifest; setManifest: React.Dispatch<
         className="sidebar-btn"
       >
         <img
-          src="https://avatarfiles.alphacoders.com/762/thumb-76262.png"
+          src={optional_obj.Image}
           alt={contact.name}
           className="img-icon"
           title={contact.name}

@@ -207,6 +207,12 @@ func (d *DbManager) AddManifets(manifestJson string) error {
 	}
 
 	//Create new db
+	//Try to create db
+	err = d.Driver.CreateDb(*m)
+	if err != nil {
+		log.Println("Not recreating db db, err:", err)
+		return fmt.Errorf("Not reacreatinng db, err:", err)
+	}
 	db := d.Driver.GetDb(*m)
 	db.StartWorker(60)
 	d.dbs[*m] = &db
@@ -218,6 +224,7 @@ func (d *DbManager) AddManifets(manifestJson string) error {
 	}
 
 	return nil
+
 }
 
 func (d *DbManager) ManifestList() []manifest.Manifest {
