@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { manifest } from "../../wailsjs/go/models";
-import { ChangeListeningDb, DeleteManifest } from "../../wailsjs/go/src/DbManager";
+import { ChangeListeningDb, DeleteManifest } from "../../wailsjs/go/core/Core";
 import Optional from "../models/Optional";
 
 // ContextMenu component

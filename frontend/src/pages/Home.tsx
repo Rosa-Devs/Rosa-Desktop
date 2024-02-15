@@ -1,5 +1,5 @@
 import RightSidebar from "./RightBar";
-import { StartManager, AddManifets, ManifestList } from "../../wailsjs/go/src/DbManager"
+import { StartManager, AddManifets, ManifestList } from "../../wailsjs/go/core/Core"
 import { useState } from "react";
 import Chat from "../itemkit/Chat";
 import TitleBar from "../itemkit/TitleBar";

@@ -1,15 +1,15 @@
 // Chat.tsx
 
 import React, { useState, useEffect } from 'react';
-import { ChangeListeningDb, GetMessages, GetProfile, NewMessage } from '../../wailsjs/go/src/DbManager';
-import { src, manifest } from '../../wailsjs/go/models';
+import { ChangeListeningDb, GetMessages, GetProfile, NewMessage } from '../../wailsjs/go/core/Core';
+import { models, manifest } from '../../wailsjs/go/models';
 import { EventsOn, EventsOff } from '../../wailsjs/runtime/runtime'
 
 
 
 
 const Chat: React.FC<{ manifest: manifest.Manifest }> = ({ manifest }) => {
-  const [messages, setMessages] = useState<src.Message[]>([]);
+  const [messages, setMessages] = useState<models.Message[]>([]);
   const [newMessage, setNewMessage] = useState<string>('');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -9,13 +9,14 @@ import (
 
 	"github.com/Rosa-Devs/Database/src/manifest"
 	db "github.com/Rosa-Devs/Database/src/store"
+	"github.com/Rosa-Devs/Rosa-Desktop/models"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
-func (Mgr *DbManager) DatabaseUpdateEventServer(ctx context.Context, m manifest.Manifest) {
+func (Mgr *Core) DatabaseUpdateEventServer(ctx context.Context, m manifest.Manifest) {
 	Mgr.waitGrp.Add(1)
 
-	go func(ctx context.Context, m manifest.Manifest, M *DbManager) {
+	go func(ctx context.Context, m manifest.Manifest, M *Core) {
 		defer M.waitGrp.Done()
 
 		// Get database
@@ -43,7 +44,7 @@ func (Mgr *DbManager) DatabaseUpdateEventServer(ctx context.Context, m manifest.
 	}(ctx, m, Mgr)
 }
 
-func (Mgr *DbManager) ChangeListeningDb(m manifest.Manifest) {
+func (Mgr *Core) ChangeListeningDb(m manifest.Manifest) {
 	if Mgr.Started == false {
 		log.Println("Cannot change event server because DBMgr not running")
 		return
@@ -66,16 +67,16 @@ func (Mgr *DbManager) ChangeListeningDb(m manifest.Manifest) {
 	Mgr.DatabaseUpdateEventServer(ctx, m)
 }
 
-func (Mgr *DbManager) Nodes() int {
+func (Mgr *Core) Nodes() int {
 	if Mgr.Started == false {
 		return 0
 	}
-	return len(Mgr.dht.Host().Network().Peers())
+	return len(Mgr.host.Dht.Host().Network().Peers())
 }
 
-func (Mgr *DbManager) NewMessage(m manifest.Manifest, msg string) error {
+func (Mgr *Core) NewMessage(m manifest.Manifest, msg string) error {
 
-	msg_stuct := new(Message)
+	msg_stuct := new(models.Message)
 
 	currentTime := time.Now().UTC()
 
@@ -83,9 +84,9 @@ func (Mgr *DbManager) NewMessage(m manifest.Manifest, msg string) error {
 	timestamp := currentTime.Format("2006-01-02T15:04:05.000")
 
 	msg_stuct.Data = msg
-	msg_stuct.Sender = Mgr.Name
+	msg_stuct.Sender = Mgr.profile.Name
 	msg_stuct.Time = timestamp + "1"
-	msg_stuct.DataType = MessageType
+	msg_stuct.DataType = models.MessageType
 
 	//GET DB FROM DATABASE MGR
 	db, ok := Mgr.dbs[m]
@@ -94,12 +95,12 @@ func (Mgr *DbManager) NewMessage(m manifest.Manifest, msg string) error {
 		return fmt.Errorf("Failed to get database from dbs manager")
 	}
 
-	err := db.CreatePool(MsgPool)
+	err := db.CreatePool(models.MsgPool)
 	if err != nil {
 		log.Println("Not recreating pool:", err)
 	}
 
-	pool, err := db.GetPool(MsgPool)
+	pool, err := db.GetPool(models.MsgPool)
 	if err != nil {
 		log.Println("Failed to get pool:", err)
 		return err
@@ -118,7 +119,7 @@ func (Mgr *DbManager) NewMessage(m manifest.Manifest, msg string) error {
 	return nil
 }
 
-func (Mgr *DbManager) GetMessages(m manifest.Manifest) ([]Message, error) {
+func (Mgr *Core) GetMessages(m manifest.Manifest) ([]models.Message, error) {
 
 	db, ok := Mgr.dbs[m]
 	//log.Println(Mgr.dbs)
@@ -127,19 +128,19 @@ func (Mgr *DbManager) GetMessages(m manifest.Manifest) ([]Message, error) {
 		return nil, fmt.Errorf("Failed to get database from dbs manager 1")
 	}
 
-	err := db.CreatePool(MsgPool)
+	err := db.CreatePool(models.MsgPool)
 	if err != nil {
 		//log.Println("Not recreating pool:", err)
 	}
 
-	pool, err := db.GetPool(MsgPool)
+	pool, err := db.GetPool(models.MsgPool)
 	if err != nil {
 		log.Println("Failed to get pool:", err)
 		return nil, err
 	}
 
 	filter := map[string]interface{}{
-		"datatype": MessageType,
+		"datatype": models.MessageType,
 	}
 
 	data, err := pool.Filter(filter)
@@ -163,8 +164,8 @@ func (Mgr *DbManager) GetMessages(m manifest.Manifest) ([]Message, error) {
 	return msg_data, nil
 }
 
-func convertToMessages(data []map[string]interface{}) []Message {
-	messages := make([]Message, len(data))
+func convertToMessages(data []map[string]interface{}) []models.Message {
+	messages := make([]models.Message, len(data))
 
 	for i, item := range data {
 		// Assuming your map contains fields like "ID" and "Text"
@@ -175,7 +176,7 @@ func convertToMessages(data []map[string]interface{}) []Message {
 		time, _ := item["time"].(string)
 
 		// Create a new Message and append it to the result slice
-		messages[i] = Message{
+		messages[i] = models.Message{
 			DataType: d_type,
 			Sender:   sender,
 			Data:     data,

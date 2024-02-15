@@ -1,8 +1,8 @@
 import React, { useState, useEffect, ChangeEvent, createRef} from 'react';
-import { ChangeListeningDb, ManifestList, Nodes } from "../../wailsjs/go/src/DbManager";
-import { manifest, src } from "../../wailsjs/go/models";
+import { ChangeListeningDb, ManifestList, Nodes } from "../../wailsjs/go/core/Core";
+import { manifest} from "../../wailsjs/go/models";
 import Buble from '../itemkit/ChatBuble'; // Import the Buble component if not already imported
-import { AddManifets, CreateManifest,} from '../../wailsjs/go/src/DbManager';
+import { AddManifets, CreateManifest,} from '../../wailsjs/go/core/Core';
 import { CgAdd } from "react-icons/cg";
 import { MdCreate } from "react-icons/md";
 import { Cropper, ReactCropperElement } from 'react-cropper';
@@ -123,7 +123,7 @@ const RightSidebar = ({ setManifest }: { setManifest: React.Dispatch<React.SetSt
           <div className="add-button-container">
             <button onClick={handleAddManifest} className="add-button"><CgAdd className='text-4xl'/></button><br />
             <button onClick={handleCreateManifest} className="add-button"><MdCreate className='text-4xl'/></button>
-            <p className='dht'>DHT: {nodes}</p>
+            {/* <p className='dht'>DHT: {nodes}</p> */}
           </div>
         </div>
       )}

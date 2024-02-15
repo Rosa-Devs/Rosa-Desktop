@@ -21,13 +21,15 @@ export namespace manifest {
 
 }
 
-export namespace src {
+export namespace models {
 	
 	export class Message {
 	    datatype: number;
 	    sender: string;
+	    senderid: string;
 	    data: string;
 	    time: string;
+	    sign: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new Message(source);
@@ -37,8 +39,10 @@ export namespace src {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.datatype = source["datatype"];
 	        this.sender = source["sender"];
+	        this.senderid = source["senderid"];
 	        this.data = source["data"];
 	        this.time = source["time"];
+	        this.sign = source["sign"];
 	    }
 	}
 

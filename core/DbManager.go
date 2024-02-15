@@ -7,31 +7,30 @@ import (
 	"fmt"
 	"log"
 	"sync"
-	"time"
 
 	"github.com/Rosa-Devs/Database/src/manifest"
 	db "github.com/Rosa-Devs/Database/src/store"
-	"github.com/libp2p/go-libp2p"
-	dht "github.com/libp2p/go-libp2p-kad-dht"
-	pubsub "github.com/libp2p/go-libp2p-pubsub"
-	"github.com/libp2p/go-libp2p/core/host"
-	"github.com/libp2p/go-libp2p/core/peer"
-	"github.com/libp2p/go-libp2p/p2p/discovery/mdns"
+	"github.com/Rosa-Devs/Rosa-Desktop/models"
+	"github.com/Rosa-Devs/Rosa-Desktop/network"
+	"github.com/Rosa-Devs/Rosa-Desktop/store"
 )
 
 const Randevuz = "RosaApp"
 
-type DbManager struct {
+type Core struct {
+	Icon    []byte
 	Started bool
 	DbPath  string
 
 	//TEST
-	Name string
+	Store   store.Store
+	profile models.Profile
 
 	ctx context.Context
-	h   host.Host
-	dht *dht.IpfsDHT
-	ps  *pubsub.PubSub
+
+	//Host
+	host network.Host
+
 	dbs map[manifest.Manifest]*db.Database
 
 	Driver      *db.DB
@@ -44,20 +43,29 @@ type DbManager struct {
 	wailsctx   context.Context
 }
 
-func (d *DbManager) GetProfile() string {
+func (d *Core) GetProfile() string {
 	if d.Started == false {
 		return ""
 	}
-	return d.Name
+	return d.profile.Name
 }
 
-func (d *DbManager) OnWailsInit(ctx context.Context) {
+func (d *Core) OnWailsInit(ctx context.Context) {
 	d.wailsctx = ctx
 }
 
-func (d *DbManager) StartManager(dbPath string, N string) {
+func (d *Core) StartManager() {
 	d.stopCh = make(chan struct{})
-	d.Name = N
+
+	var err error
+	d.profile, err = models.LoadFromFile(d.Store.Profile)
+	if err != nil {
+		fmt.Println("Error loading profile:", err)
+		d.profile = models.Profile{
+			Id: "UAUNT",
+		}
+		return
+	}
 
 	if d.Started == true {
 		log.Println("Dbs Manager already started..")
@@ -65,39 +73,24 @@ func (d *DbManager) StartManager(dbPath string, N string) {
 	}
 	d.Started = true
 
-	d.DbPath = dbPath
+	d.DbPath = d.Store.Database
 	d.dbs = make(map[manifest.Manifest]*db.Database)
 	d.ctx = context.Background()
 
-	opts := libp2p.ChainOptions(
-		libp2p.EnableNATService(),
-		libp2p.EnableRelayService(),
-		libp2p.EnableRelay(),
-		libp2p.EnableHolePunching(),
-	)
-
-	var err error
-	d.h, err = libp2p.New(opts)
-	if err != nil {
-		panic(err)
+	// Create new Host instance with properties
+	d.host = network.Host{
+		MDnsServie: true,
+		DhtService: true,
 	}
 
-	d.ps, err = pubsub.NewGossipSub(d.ctx, d.h)
-	if err != nil {
-		panic(err)
+	if d.host.InitHost(d.ctx) != nil {
+		log.Println("Failt to init HOST module. Crytical error")
+		return
 	}
-
-	if err := setupDiscovery(d.h); err != nil {
-		panic(err)
-	}
-
-	d.dht = init_DHT(d.ctx, d.h)
-	go bootstrap(d.ctx, d.dht)
-	go boot(d.ctx, d.h, d.dht)
 
 	d.Driver = &db.DB{
-		H:  d.h,
-		Pb: d.ps,
+		H:  d.host.H,
+		Pb: d.host.Ps,
 	}
 	d.Driver.Start(d.DbPath)
 
@@ -165,7 +158,7 @@ func (d *DbManager) StartManager(dbPath string, N string) {
 	log.Println("All database are create and ready to use")
 }
 
-func (d *DbManager) CreateManifest(name string, opts string) string {
+func (d *Core) CreateManifest(name string, opts string) string {
 
 	m_json, err := manifest.GenereateManifest(name, false, opts).Serialize()
 	if err != nil {
@@ -176,7 +169,7 @@ func (d *DbManager) CreateManifest(name string, opts string) string {
 
 }
 
-func (d *DbManager) AddManifets(manifestJson string) error {
+func (d *Core) AddManifets(manifestJson string) error {
 	if d.Started == false {
 		log.Println("Db manager is not started")
 		return fmt.Errorf("Db manager is not started")
@@ -194,9 +187,9 @@ func (d *DbManager) AddManifets(manifestJson string) error {
 	m := new(manifest.Manifest)
 	m.Deserialize([]byte(manifestJson))
 
-	m_s := new(MStore)
+	m_s := new(models.MStore)
 	m_s.Data, err = m.Serialize()
-	m_s.Type = MStore_TYPE_Manifet
+	m_s.Type = models.MStore_TYPE_Manifet
 	if err != nil {
 		log.Panicln("Fail to serialize manifest", err)
 		return err
@@ -227,7 +220,7 @@ func (d *DbManager) AddManifets(manifestJson string) error {
 
 }
 
-func (d *DbManager) ManifestList() []manifest.Manifest {
+func (d *Core) ManifestList() []manifest.Manifest {
 	if d.Started == false {
 		log.Println("Db manager is not started")
 		return append([]manifest.Manifest{}, manifest.Manifest{Name: "Db Manager not started", PubSub: "0"})
@@ -279,7 +272,7 @@ func (d *DbManager) ManifestList() []manifest.Manifest {
 	return manifetss
 }
 
-func (d *DbManager) DeleteManifest(m manifest.Manifest) error {
+func (d *Core) DeleteManifest(m manifest.Manifest) error {
 	if d.Started == false {
 		log.Println("Db manager is not started")
 		return fmt.Errorf("Db manager is not started")
@@ -326,29 +319,31 @@ func (d *DbManager) DeleteManifest(m manifest.Manifest) error {
 	return nil
 }
 
-// DiscoveryInterval is how often we re-publish our mDNS records.
-const DiscoveryInterval = time.Hour
+func (c *Core) CreateNewAccount(name string, avatar string) error {
 
-// discoveryNotifee gets notified when we find a new peer via mDNS discovery
-type discoveryNotifee struct {
-	h host.Host
-}
-
-// HandlePeerFound connects to peers discovered via mDNS. Once they're connected,
-// the PubSub system will automatically start interacting with them if they also
-// support PubSub.
-func (n *discoveryNotifee) HandlePeerFound(pi peer.AddrInfo) {
-	fmt.Printf("discovered new peer %s\n", pi.ID)
-	err := n.h.Connect(context.Background(), pi)
+	profile, err := models.CreateProfile(name, avatar)
 	if err != nil {
-		fmt.Printf("error connecting to peer %s: %s\n", pi.ID, err)
+		log.Println(err)
+		return err
 	}
+	err = models.WriteToFile(c.Store.Profile, profile)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	//For frontend
+	c.StartManager()
+	return nil
 }
 
-// setupDiscovery creates an mDNS discovery service and attaches it to the libp2p Host.
-// This lets us automatically discover peers on the same LAN and connect to them.
-func setupDiscovery(h host.Host) error {
-	// setup mDNS discovery to find local peers
-	s := mdns.NewMdnsService(h, Randevuz, &discoveryNotifee{h: h})
-	return s.Start()
+func (c *Core) Autorized() bool {
+	if !c.Started {
+		return false
+	}
+	if c.profile.Id == "UAUNT" {
+		return false
+	}
+
+	return true
 }

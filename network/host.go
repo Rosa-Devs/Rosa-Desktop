@@ -2,6 +2,7 @@ package network
 
 import (
 	"context"
+	"log"
 
 	"github.com/libp2p/go-libp2p"
 	dht "github.com/libp2p/go-libp2p-kad-dht"
@@ -11,6 +12,9 @@ import (
 
 type Host struct {
 	ctx context.Context
+
+	MDnsServie bool
+	DhtService bool
 
 	// Libp2p host for routing
 	H   host.Host
@@ -42,6 +46,20 @@ func (h *Host) InitHost(ctx context.Context) error {
 	h.Ps, err = pubsub.NewGossipSub(h.ctx, h.H)
 	if err != nil {
 		return err
+	}
+
+	//Run host if needed
+	if h.MDnsServie {
+		if h.StartmDSNService() != nil {
+			log.Println("Failed to launch mDns service:", err)
+		}
+	}
+	if h.DhtService {
+		if h.init_DHT() != nil {
+			log.Println("Failede to launch Dht service:", err)
+			return nil
+		}
+		go h.connectToDefaultNodes()
 	}
 
 	return nil
