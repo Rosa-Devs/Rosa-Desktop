@@ -18,6 +18,8 @@ export function DatabaseUpdateEventServer(arg1:context.Context,arg2:manifest.Man
 
 export function DeleteManifest(arg1:manifest.Manifest):Promise<void>;
 
+export function ExportManifest(arg1:manifest.Manifest):Promise<void>;
+
 export function GetMessages(arg1:manifest.Manifest):Promise<Array<models.Message>>;
 
 export function GetProfile():Promise<string>;

@@ -298,4 +298,21 @@
     border-radius: 50%;
 }
 
-/* Register */
+/* Chat */
+
+.avatar_msg {
+  display: flex;
+  align-items: flex-end; /* Align to the bottom */
+  justify-content: flex-end; /* Move to the right */
+  margin-bottom: 1%;
+  margin-right: 10px;
+}
+
+.avatar_user {
+  display: flex;
+  align-items: flex-end; /* Align to the bottom */
+  justify-content: flex-start; /* Move to the left */
+  margin-bottom: 1%;
+  margin-left: 10px;
+}
+

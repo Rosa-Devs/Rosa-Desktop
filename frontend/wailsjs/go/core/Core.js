@@ -30,6 +30,10 @@ export function DeleteManifest(arg1) {
   return window['go']['core']['Core']['DeleteManifest'](arg1);
 }
 
+export function ExportManifest(arg1) {
+  return window['go']['core']['Core']['ExportManifest'](arg1);
+}
+
 export function GetMessages(arg1) {
   return window['go']['core']['Core']['GetMessages'](arg1);
 }

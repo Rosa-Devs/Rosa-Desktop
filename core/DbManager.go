@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"sync"
 
 	"github.com/Rosa-Devs/Database/src/manifest"
@@ -13,6 +14,7 @@ import (
 	"github.com/Rosa-Devs/Rosa-Desktop/models"
 	"github.com/Rosa-Devs/Rosa-Desktop/network"
 	"github.com/Rosa-Devs/Rosa-Desktop/store"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 const Randevuz = "RosaApp"
@@ -33,8 +35,8 @@ type Core struct {
 
 	dbs map[manifest.Manifest]*db.Database
 
-	Driver      *db.DB
-	Manifest_DB db.Database
+	Driver     *db.DB
+	Service_DB db.Database
 
 	//Event server
 	stopCh     chan struct{}
@@ -95,20 +97,25 @@ func (d *Core) StartManager() {
 	d.Driver.Start(d.DbPath)
 
 	m_db := manifest.Manifest{
-		Name:   "Manifests",
+		Name:   "Service",
 		PubSub: manifest.GenerateNoise(15),
 		Chiper: manifest.GenerateNoise(32),
 	}
 
 	d.Driver.CreateDb(m_db)
-	d.Manifest_DB = d.Driver.GetDb(m_db)
+	d.Service_DB = d.Driver.GetDb(m_db)
 
-	err = d.Manifest_DB.CreatePool("manifests")
+	err = d.Service_DB.CreatePool("manifests")
 	if err != nil {
 		//log.Println("Not recreating pool:", err)
 	}
+	err = d.Service_DB.CreatePool("trust")
+	if err != nil {
+		//log.Println("Not recreating pool:", err)
+	}
+
 	//READ MANIFET DB AND CREATE DBS
-	pool, err := d.Manifest_DB.GetPool("manifests")
+	pool, err := d.Service_DB.GetPool("manifests")
 	if err != nil {
 		log.Println("Failed to get pool")
 	}
@@ -174,11 +181,11 @@ func (d *Core) AddManifets(manifestJson string) error {
 		log.Println("Db manager is not started")
 		return fmt.Errorf("Db manager is not started")
 	}
-	err := d.Manifest_DB.CreatePool("manifests")
+	err := d.Service_DB.CreatePool("manifests")
 	if err != nil {
 		log.Println("Not recreating pool:", err)
 	}
-	pool, err := d.Manifest_DB.GetPool("manifests")
+	pool, err := d.Service_DB.GetPool("manifests")
 	if err != nil {
 		log.Println("Fail to get pool", err)
 		return err
@@ -225,12 +232,12 @@ func (d *Core) ManifestList() []manifest.Manifest {
 		log.Println("Db manager is not started")
 		return append([]manifest.Manifest{}, manifest.Manifest{Name: "Db Manager not started", PubSub: "0"})
 	}
-	err := d.Manifest_DB.CreatePool("manifests")
+	err := d.Service_DB.CreatePool("manifests")
 	if err != nil {
 		//log.Println("Not recreating pool:", err)
 	}
 	//READ MANIFET DB AND CREATE DBS
-	pool, err := d.Manifest_DB.GetPool("manifests")
+	pool, err := d.Service_DB.GetPool("manifests")
 	if err != nil {
 		log.Println("Failed to get pool")
 	}
@@ -277,12 +284,12 @@ func (d *Core) DeleteManifest(m manifest.Manifest) error {
 		log.Println("Db manager is not started")
 		return fmt.Errorf("Db manager is not started")
 	}
-	err := d.Manifest_DB.CreatePool("manifests")
+	err := d.Service_DB.CreatePool("manifests")
 	if err != nil {
 		log.Println("Not recreating pool:", err)
 	}
 	//READ MANIFET DB AND CREATE DBS
-	pool, err := d.Manifest_DB.GetPool("manifests")
+	pool, err := d.Service_DB.GetPool("manifests")
 	if err != nil {
 		log.Println("Failed to get pool")
 		return err
@@ -346,4 +353,30 @@ func (c *Core) Autorized() bool {
 	}
 
 	return true
+}
+
+func (c *Core) ExportManifest(m manifest.Manifest) {
+	path, err := runtime.SaveFileDialog(c.wailsctx, runtime.SaveDialogOptions{
+		Title:                "Save chat file...",
+		CanCreateDirectories: true,
+		DefaultFilename:      m.Name + ".json",
+	})
+	if err != nil {
+		log.Println("Fail to chosee export path")
+		return
+	}
+
+	data, err := m.Serialize()
+	if err != nil {
+		log.Println("Fail to serialize")
+		return
+	}
+
+	err = os.WriteFile(path, data, os.FileMode(0775))
+	if err != nil {
+		log.Println("Fail to write a file!!")
+		return
+	}
+
+	log.Println(path)
 }

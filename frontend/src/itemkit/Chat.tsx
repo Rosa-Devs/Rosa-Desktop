@@ -123,14 +123,40 @@ const Chat: React.FC<{ manifest: manifest.Manifest }> = ({ manifest }) => {
               message.sender === nickname ? 'self-end' : 'self-start'
             } w-3/4`}
           >
+            <div className="">
+              {
+                message.sender === nickname ? (
+                  <div className="avatar_msg">
+                    <img
+                      src={"https://www.shutterstock.com/image-vector/default-avatar-profile-icon-social-600nw-1677509740.jpg"}
+                      alt={`${message.sender}'s Avatar`}
+                      className="w-12 h-12 rounded-full self-end"
+                    />
+                  </div>
+                ) :(
+                  <div className="avatar_user">
+                    <img
+                      src={"https://www.shutterstock.com/image-vector/default-avatar-profile-icon-social-600nw-1677509740.jpg"}
+                      alt={`${message.sender}'s Avatar`}
+                      className="w-12 h-12 rounded-full self-start"
+                    />
+                  </div>
+                  
+                )
+              }
+            </div>
+            
             <div
               className={`p-4 max-w-xs mx-2 rounded-lg ${
-                message.sender === nickname ? 'bg-purple-600 text-white ml-auto' : 'bg-gray-200 text-black mr-auto'
+                message.sender === nickname ? 'bg-gray-200 text-black ml-auto' : 'bg-gray-200 text-black mr-auto'
               }`}
             >
-              {message.data}
+              <div className="text-gray-500 text-xs mb-1">
+                {message.sender}
+              </div>
+                {message.data}
             </div>
-          </div>
+          </div> 
         ))}
       </div>
       <div className="flex items-center p-4">

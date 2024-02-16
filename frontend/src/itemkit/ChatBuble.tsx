@@ -1,19 +1,27 @@
 import React, { useEffect, useRef, useState } from "react";
 import { manifest } from "../../wailsjs/go/models";
-import { ChangeListeningDb, DeleteManifest } from "../../wailsjs/go/core/Core";
+import { ChangeListeningDb, DeleteManifest, ExportManifest } from "../../wailsjs/go/core/Core";
 import Optional from "../models/Optional";
+import { BrowserOpenURL } from "../../wailsjs/runtime/runtime";
 
 // ContextMenu component
 
+interface ContextMenuProps {
+  onDelete: () => void;
+  onClose: () => void;
+  onExport: () => void;
+  xPos: number;
+  yPos: number;
+}
 // ContextMenu component
-const ContextMenu: React.FC<{ onDelete: () => void; Close: () => void; xPos: number; yPos: number }> = ({ onDelete, Close, xPos, yPos }) => {
+const ContextMenu: React.FC<ContextMenuProps> = ({ onDelete, onClose, onExport, xPos, yPos }) => {
   const menuRef = useRef<HTMLDivElement>(null);
   const [menuPosition, setMenuPosition] = useState({ x: xPos, y: yPos });
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        Close()
+        onClose()
         
       }
     };
@@ -23,7 +31,7 @@ const ContextMenu: React.FC<{ onDelete: () => void; Close: () => void; xPos: num
     return () => {
       document.removeEventListener("click", handleClickOutside);
     };
-  }, [Close]);
+  }, [onClose]);
 
   useEffect(() => {
     // Adjust the menu position if it goes beyond the right side of the screen
@@ -44,6 +52,8 @@ const ContextMenu: React.FC<{ onDelete: () => void; Close: () => void; xPos: num
   return (
     <div className="context-menu" style={menuStyle} ref={menuRef}>
       <button onClick={onDelete}>Delete</button>
+      <br />
+      <button onClick={onExport}>Share</button>
     </div>
   );
 };
@@ -63,6 +73,10 @@ const Buble: React.FC<{ contact: manifest.Manifest; setManifest: React.Dispatch<
 
   const handleClose = () => {
     setContextMenuPosition({ x: 0, y: 0 });
+  }
+
+  const handleExportManifest = () => {
+    ExportManifest(contact)
   }
 
   const handleDelete = () => {
@@ -102,10 +116,11 @@ const Buble: React.FC<{ contact: manifest.Manifest; setManifest: React.Dispatch<
       </button>
 
       {contextMenuPosition.x !== 0 && contextMenuPosition.y !== 0 && (
-        <ContextMenu onDelete={handleDelete} Close={handleClose} xPos={contextMenuPosition.x} yPos={contextMenuPosition.y} />
+        <ContextMenu onDelete={handleDelete} onExport={handleExportManifest} onClose={handleClose} xPos={contextMenuPosition.x} yPos={contextMenuPosition.y} />
       )}
     </div>
   );
 };
 
 export default Buble;
+

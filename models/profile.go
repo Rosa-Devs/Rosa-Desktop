@@ -16,6 +16,8 @@ import (
 	"github.com/Rosa-Devs/Database/src/manifest"
 )
 
+const Profile_type int = 2
+
 type Profile struct {
 	Name    string `json:"name"`
 	Id      string `json:"id"`
@@ -25,6 +27,7 @@ type Profile struct {
 }
 
 type ProfileStorePublic struct {
+	Type   string `json:"type"`
 	Name   string `json:"name"`
 	Id     string `json:"id"`
 	PubKey string `json:"pub"`

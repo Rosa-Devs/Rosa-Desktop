@@ -85,6 +85,7 @@ func (Mgr *Core) NewMessage(m manifest.Manifest, msg string) error {
 
 	msg_stuct.Data = msg
 	msg_stuct.Sender = Mgr.profile.Name
+	msg_stuct.SenderId = Mgr.profile.Id
 	msg_stuct.Time = timestamp + "1"
 	msg_stuct.DataType = models.MessageType
 
@@ -97,7 +98,7 @@ func (Mgr *Core) NewMessage(m manifest.Manifest, msg string) error {
 
 	err := db.CreatePool(models.MsgPool)
 	if err != nil {
-		log.Println("Not recreating pool:", err)
+		//log.Println("Not recreating pool:", err)
 	}
 
 	pool, err := db.GetPool(models.MsgPool)

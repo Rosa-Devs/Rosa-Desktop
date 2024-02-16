@@ -7,12 +7,24 @@ import (
 	"time"
 
 	"github.com/getlantern/systray"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 func (d *Core) TrayReady() {
 	systray.SetIcon(d.Icon)
 	systray.SetTitle("Rosa")
 	systray.SetTooltip("Beta")
+
+	open := systray.AddMenuItem("Open app", "Openinng app")
+	open.SetTooltip("Press to open app")
+	go func() {
+		for {
+			<-open.ClickedCh
+			log.Println("Oppening window")
+			runtime.WindowShow(d.wailsctx)
+		}
+
+	}()
 
 	dht := systray.AddMenuItem("DHT:", "Showing dht status")
 	dht.SetTooltip("Showing avalible nodes.")
