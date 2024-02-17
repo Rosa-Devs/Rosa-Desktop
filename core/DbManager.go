@@ -98,6 +98,7 @@ func (d *Core) StartManager() {
 
 	m_db := manifest.Manifest{
 		Name:   "Service",
+		UId:    "1",
 		PubSub: manifest.GenerateNoise(15),
 		Chiper: manifest.GenerateNoise(32),
 	}
