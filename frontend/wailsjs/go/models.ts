@@ -45,6 +45,26 @@ export namespace models {
 	        this.sign = source["sign"];
 	    }
 	}
+	export class ProfileStorePublic {
+	    type: string;
+	    name: string;
+	    id: string;
+	    pub: string;
+	    avatar: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new ProfileStorePublic(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.type = source["type"];
+	        this.name = source["name"];
+	        this.id = source["id"];
+	        this.pub = source["pub"];
+	        this.avatar = source["avatar"];
+	    }
+	}
 
 }
 

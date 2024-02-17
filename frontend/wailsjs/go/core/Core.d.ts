@@ -35,3 +35,5 @@ export function StartManager():Promise<void>;
 export function TrayExit():Promise<void>;
 
 export function TrayReady():Promise<void>;
+
+export function TrusNewProfile(arg1:models.ProfileStorePublic):Promise<void>;

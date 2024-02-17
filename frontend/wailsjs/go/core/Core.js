@@ -65,3 +65,7 @@ export function TrayExit() {
 export function TrayReady() {
   return window['go']['core']['Core']['TrayReady']();
 }
+
+export function TrusNewProfile(arg1) {
+  return window['go']['core']['Core']['TrusNewProfile'](arg1);
+}
