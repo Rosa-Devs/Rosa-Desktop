@@ -39,11 +39,18 @@ jobs:
           build-name: ${{ matrix.build.name }}
           build-platform: ${{ matrix.build.platform }}
           package: true
-      - name: Creaet new releasse.
-        run: zip -r ${{ matrix.build.name }}.zip build/bin/*
-      - uses: ncipollo/release-action@v1
-        with:
-          artifacts: ${{ matrix.build.name }}.zip 
-          allowUpdates: true
-          name: Latest
-          tag: v0.0.1
+  release:
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+    - uses: actions/checkout@master
+    - name: Create release
+      uses: Roang-zero1/github-create-release-action@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Upload release artifacts
+      uses: Roang-zero1/github-upload-release-artifacts-action@v2
+      with:
+        args: "*/bin/ dist/shell/compiled.sh"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
