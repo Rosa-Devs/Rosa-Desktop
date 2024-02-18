@@ -8,8 +8,8 @@ jobs:
       fail-fast: false
       matrix:
         build: [
-          {name: wailsTest, platform: linux/amd64, os: ubuntu-latest},
-          {name: wailsTest, platform: windows/amd64, os: windows-latest},
+          {name: Rosa, platform: linux/amd64, os: ubuntu-latest},
+          {name: Rosa, platform: windows/amd64, os: windows-latest},
           # {name: wailsTest, platform: darwin/universal, os: macos-latest}
         ]
     runs-on: ${{ matrix.build.os }}
@@ -38,3 +38,8 @@ jobs:
         with:
           build-name: ${{ matrix.build.name }}
           build-platform: ${{ matrix.build.platform }}
+          package: true
+      - run: zip -r build.zip build/bin/*
+        - uses: ncipollo/release-action@v1
+          with:
+            artifacts: "build.zip"  
