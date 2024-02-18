@@ -22,7 +22,7 @@ jobs:
         run: sudo apt-get update
       - name: Install libayatana-appindicator3-dev on Linux
         if: matrix.build.os == 'ubuntu-latest'
-        run: sudo apt-get install libayatana-appindicator3-0.1-cil-dev gir1.2-appindicator3-0.1 -y
+        run: sudo apt-get install gcc libgtk-3-dev libayatana-appindicator3-dev -y
       - uses: dAppServer/wails-build-action@v2.2
         with:
           build-name: ${{ matrix.build.name }}
