@@ -94,7 +94,7 @@ const Buble: React.FC<{ contact: manifest.Manifest; setManifest: React.Dispatch<
       optional_obj = JSON.parse(contact.optional);
 
       // Now you can use optional_obj as needed
-      console.log(optional_obj);
+      
   } else {
       // Handle the case when contact.optional is null or undefined
       console.error("contact.optional is null or undefined");

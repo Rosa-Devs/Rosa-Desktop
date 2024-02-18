@@ -148,7 +148,7 @@ func (p *ProfileStorePublic) ValidateMsg(m Message) bool {
 		return false
 	}
 
-	hashed := sha256.Sum256([]byte(m.Data + m.Time + m.SenderId))
+	hashed := sha256.Sum256([]byte(m.Data))
 	err = rsa.VerifyPKCS1v15(pubKey, crypto.SHA256, hashed[:], signature)
 	if err != nil {
 		//fmt.Println("Signature verification failed:", err)
@@ -176,7 +176,7 @@ func (p *Profile) Sign(m *Message) error {
 	}
 
 	// Sign the message
-	hashed := sha256.Sum256([]byte(m.Data + m.Time + m.SenderId))
+	hashed := sha256.Sum256([]byte(m.Data))
 	signature, err := rsa.SignPKCS1v15(rand.Reader, privKey, crypto.SHA256, hashed[:])
 	if err != nil {
 		return fmt.Errorf("error signing message: %v", err)
@@ -219,4 +219,15 @@ func WriteToFile(file string, profile Profile) error {
 	}
 
 	return nil
+}
+
+func (p *ProfileStorePublic) ProfileFromMap(data map[string]interface{}) {
+	// Assuming your map contains fields like "type", "name", "id", and "pub"
+	// Adjust these according to your actual map structure
+	p.Type, _ = data["type"].(string)
+	p.Name, _ = data["name"].(string)
+	p.Id, _ = data["id"].(string)
+	p.PubKey, _ = data["pub"].(string)
+	p.Avatar, _ = data["avatar"].(string)
+
 }

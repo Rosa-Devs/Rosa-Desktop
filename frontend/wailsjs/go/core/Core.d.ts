@@ -20,6 +20,8 @@ export function DeleteManifest(arg1:manifest.Manifest):Promise<void>;
 
 export function ExportManifest(arg1:manifest.Manifest):Promise<void>;
 
+export function FindUserById(arg1:string):Promise<models.ProfileStorePublic>;
+
 export function GetMessages(arg1:manifest.Manifest):Promise<Array<models.Message>>;
 
 export function GetProfile():Promise<string>;
@@ -36,4 +38,6 @@ export function TrayExit():Promise<void>;
 
 export function TrayReady():Promise<void>;
 
-export function TrusNewProfile(arg1:models.ProfileStorePublic):Promise<void>;
+export function TrustNewProfile(arg1:models.Message):Promise<void>;
+
+export function Validator(arg1:any):Promise<void>;

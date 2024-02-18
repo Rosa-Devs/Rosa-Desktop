@@ -34,6 +34,10 @@ export function ExportManifest(arg1) {
   return window['go']['core']['Core']['ExportManifest'](arg1);
 }
 
+export function FindUserById(arg1) {
+  return window['go']['core']['Core']['FindUserById'](arg1);
+}
+
 export function GetMessages(arg1) {
   return window['go']['core']['Core']['GetMessages'](arg1);
 }
@@ -66,6 +70,10 @@ export function TrayReady() {
   return window['go']['core']['Core']['TrayReady']();
 }
 
-export function TrusNewProfile(arg1) {
-  return window['go']['core']['Core']['TrusNewProfile'](arg1);
+export function TrustNewProfile(arg1) {
+  return window['go']['core']['Core']['TrustNewProfile'](arg1);
+}
+
+export function Validator(arg1) {
+  return window['go']['core']['Core']['Validator'](arg1);
 }

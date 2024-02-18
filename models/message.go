@@ -8,12 +8,13 @@ const MessageType = 1
 const UserType = 2
 
 type Message struct {
-	DataType  int    `json:"datatype"`
-	Sender    string `json:"sender"`
-	SenderId  string `json:"senderid"`
-	Data      string `json:"data"`
-	Time      string `json:"time"`
-	Signature string `json:"sign"`
+	DataType  int                `json:"datatype"`
+	Sender    ProfileStorePublic `json:"sender"`
+	SenderId  string             `json:"senderid"`
+	Data      string             `json:"data"`
+	Time      string             `json:"time"`
+	Signature string             `json:"sign"`
+	Valid     bool               `json:"valid"` // This is only for chat in db it always false
 }
 
 type User struct {

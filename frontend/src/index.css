@@ -316,3 +316,13 @@
   margin-left: 10px;
 }
 
+.avatar-user {
+  display: inline-flex;
+  align-items: center; /* Optional: Align items vertically for better alignment */
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+  margin-left: 4px; /* Optional: Add some margin between the name and the icon */
+}

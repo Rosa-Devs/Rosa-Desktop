@@ -25,28 +25,6 @@ export namespace manifest {
 
 export namespace models {
 	
-	export class Message {
-	    datatype: number;
-	    sender: string;
-	    senderid: string;
-	    data: string;
-	    time: string;
-	    sign: string;
-	
-	    static createFrom(source: any = {}) {
-	        return new Message(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.datatype = source["datatype"];
-	        this.sender = source["sender"];
-	        this.senderid = source["senderid"];
-	        this.data = source["data"];
-	        this.time = source["time"];
-	        this.sign = source["sign"];
-	    }
-	}
 	export class ProfileStorePublic {
 	    type: string;
 	    name: string;
@@ -66,6 +44,48 @@ export namespace models {
 	        this.pub = source["pub"];
 	        this.avatar = source["avatar"];
 	    }
+	}
+	export class Message {
+	    datatype: number;
+	    sender: ProfileStorePublic;
+	    senderid: string;
+	    data: string;
+	    time: string;
+	    sign: string;
+	    valid: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new Message(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.datatype = source["datatype"];
+	        this.sender = this.convertValues(source["sender"], ProfileStorePublic);
+	        this.senderid = source["senderid"];
+	        this.data = source["data"];
+	        this.time = source["time"];
+	        this.sign = source["sign"];
+	        this.valid = source["valid"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
 	}
 
 }

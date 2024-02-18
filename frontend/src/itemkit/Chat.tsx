@@ -1,16 +1,19 @@
 // Chat.tsx
 
-import React, { useState, useEffect } from 'react';
-import { ChangeListeningDb, GetMessages, GetProfile, NewMessage } from '../../wailsjs/go/core/Core';
+import React, { useState, useEffect, useRef } from 'react';
+import { ChangeListeningDb, GetMessages, GetProfile, NewMessage,TrustNewProfile } from '../../wailsjs/go/core/Core';
 import { models, manifest } from '../../wailsjs/go/models';
 import { EventsOn, EventsOff } from '../../wailsjs/runtime/runtime'
-
+import Valid from "../asset/valid.png"
+import Err from "../asset/error.svg"
+import { toast } from 'react-toastify';
 
 
 
 const Chat: React.FC<{ manifest: manifest.Manifest }> = ({ manifest }) => {
   const [messages, setMessages] = useState<models.Message[]>([]);
   const [newMessage, setNewMessage] = useState<string>('');
+  const [contextMenuIndex, setContextMenuIndex] = useState<number | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewMessage(e.target.value);
@@ -112,23 +115,39 @@ const Chat: React.FC<{ manifest: manifest.Manifest }> = ({ manifest }) => {
     })
   })
   
+  
+
+  const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
+  const [showContextMenu, setShowContextMenu] = useState(false);
+
+  const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>, index: number) => {
+    event.preventDefault();
+    setContextMenuPosition({ x: event.clientX, y: event.clientY });
+    setShowContextMenu(true)
+    setContextMenuIndex(index)
+  };
+
+  const handleContextMenuClose = () => {
+    setShowContextMenu(false);
+  };
 
   return (
     <div className="flex flex-col h-screen">
       <div className="flex-1 overflow-y-auto px-4 py-8 flex flex-col-reverse">
         {messages.slice().reverse().map((message, index) => (
           <div
+            onContextMenu={(e) => handleContextMenu(e, index)}
             key={index}
             className={`mb-4 ${
-              message.sender === nickname ? 'self-end' : 'self-start'
+              message.sender.name === nickname ? 'self-end' : 'self-start'
             } w-3/4`}
           >
             <div className="">
               {
-                message.sender === nickname ? (
+                message.sender.name === nickname ? (
                   <div className="avatar_msg">
                     <img
-                      src={"https://www.shutterstock.com/image-vector/default-avatar-profile-icon-social-600nw-1677509740.jpg"}
+                      src={message.sender.avatar !== "" ? message.sender.avatar : "https://www.shutterstock.com/image-vector/default-avatar-profile-icon-social-600nw-1677509740.jpg"}
                       alt={`${message.sender}'s Avatar`}
                       className="w-12 h-12 rounded-full self-end"
                     />
@@ -136,7 +155,7 @@ const Chat: React.FC<{ manifest: manifest.Manifest }> = ({ manifest }) => {
                 ) :(
                   <div className="avatar_user">
                     <img
-                      src={"https://www.shutterstock.com/image-vector/default-avatar-profile-icon-social-600nw-1677509740.jpg"}
+                      src={message.sender.avatar !== "" ? message.sender.avatar : "https://www.shutterstock.com/image-vector/default-avatar-profile-icon-social-600nw-1677509740.jpg"}
                       alt={`${message.sender}'s Avatar`}
                       className="w-12 h-12 rounded-full self-start"
                     />
@@ -148,13 +167,25 @@ const Chat: React.FC<{ manifest: manifest.Manifest }> = ({ manifest }) => {
             
             <div
               className={`p-4 max-w-xs mx-2 rounded-lg ${
-                message.sender === nickname ? 'bg-gray-200 text-black ml-auto' : 'bg-gray-200 text-black mr-auto'
+                message.sender.name === nickname ? 'bg-gray-200 text-black ml-auto' : 'bg-gray-200 text-black mr-auto'
               }`}
             >
               <div className="text-gray-500 text-xs mb-1">
-                {message.sender}
+                <div className="avatar-user">
+                  {message.sender.name}
+                  <img src={message.valid ? Valid : Err} className='icon' alt={message.valid ? "Valid" : "Error"}/>
+                </div>
               </div>
                 {message.data}
+                {showContextMenu && (
+                  <ContextMenu
+                    onClose={handleContextMenuClose}
+                    xPos={contextMenuPosition.x}
+                    yPos={contextMenuPosition.y}
+                    msg={messages}
+                    msginx={contextMenuIndex}
+                  />
+                )}
             </div>
           </div> 
         ))}
@@ -173,6 +204,69 @@ const Chat: React.FC<{ manifest: manifest.Manifest }> = ({ manifest }) => {
           Send
         </button>
       </div>
+    </div>
+  );
+};
+
+
+interface ContextMenuProps {
+  onClose: () => void;
+  xPos: number;
+  yPos: number;
+  msg: models.Message[];
+  msginx: number | null;
+}
+
+const ContextMenu: React.FC<ContextMenuProps> = ({onClose, xPos, yPos, msg, msginx }) => {
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [menuPosition, setMenuPosition] = useState({ x: xPos, y: yPos });
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        onClose()
+        
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [onClose]);
+
+  useEffect(() => {
+    // Adjust the menu position if it goes beyond the right side of the screen
+    const screenWidth = window.innerWidth;
+    const menuWidth = menuRef.current?.offsetWidth || 0;
+
+    if (xPos + menuWidth > screenWidth) {
+      setMenuPosition({ x: xPos - menuWidth, y: yPos });
+    }
+  }, [xPos, yPos]);
+
+  const menuStyle: React.CSSProperties = {
+    position: "absolute",
+    top: menuPosition.y,
+    left: menuPosition.x,
+  };
+
+  const handleTrust = async () => {
+    // toast("Wait")
+    if (msginx !== null) {
+      TrustNewProfile(msg[msginx])
+      console.log(msg[msginx])
+    }
+    
+    
+    toast("Account trusted!")
+  }
+
+  return (
+    <div className="context-menu" style={menuStyle} ref={menuRef}>
+      <button onClick={handleTrust}>Trust this Aunthor</button>
+      <br />
     </div>
   );
 };

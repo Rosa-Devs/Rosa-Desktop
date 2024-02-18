@@ -3,7 +3,7 @@ module github.com/Rosa-Devs/Rosa-Desktop
 go 1.21.3
 
 require (
-	github.com/Rosa-Devs/Database v0.0.5
+	github.com/Rosa-Devs/Database v0.0.6
 	github.com/libp2p/go-libp2p v0.32.1
 	github.com/libp2p/go-libp2p-kad-dht v0.25.2
 	github.com/libp2p/go-libp2p-pubsub v0.10.0

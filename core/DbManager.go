@@ -110,6 +110,10 @@ func (d *Core) StartManager() {
 	if err != nil {
 		//log.Println("Not recreating pool:", err)
 	}
+	err = d.Service_DB.CreatePool(models.UserPool)
+	if err != nil {
+		//log.Println("Not recreating pool:", err)
+	}
 	err = d.Service_DB.CreatePool("trust")
 	if err != nil {
 		//log.Println("Not recreating pool:", err)
@@ -160,10 +164,52 @@ func (d *Core) StartManager() {
 		//Get db by manifest
 		db := d.Driver.GetDb(*m)
 		db.StartWorker(35)
+
+		d.registerUser(&db)
+
 		d.dbs[*m] = &db
 	}
 
 	log.Println("All database are create and ready to use")
+}
+
+func (c *Core) registerUser(db *db.Database) {
+	err := db.CreatePool(models.UserPool)
+	if err != nil {
+		log.Println("Recraeting user pool...")
+	}
+	pool, err := db.GetPool(models.UserPool)
+	if err != nil {
+		log.Println(err)
+	}
+	filter := map[string]interface{}{
+		"id": c.profile.Id, // Random integer between 0 and 100
+	}
+
+	profiles, err := pool.Filter(filter)
+	if err != nil {
+		log.Println("Fail to get pool:", err)
+		return
+	}
+
+	if len(profiles) > 0 {
+		log.Println("This account registered!")
+		return
+	}
+
+	p_profile := c.profile.GetPublic()
+
+	data, err := p_profile.Serialize()
+	if err != nil {
+		log.Println("Fail to serialize public profile", err)
+		return
+	}
+
+	err = pool.Record(data)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 }
 
 func (d *Core) CreateManifest(name string, opts string) string {

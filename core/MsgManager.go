@@ -36,6 +36,7 @@ func (Mgr *Core) DatabaseUpdateEventServer(ctx context.Context, m manifest.Manif
 				log.Println("DatabaseUpdateEventServer exiting.")
 				return
 			case <-eventListener:
+				log.Println("Update event")
 				runtime.EventsEmit(M.wailsctx, "update")
 				time.Sleep(time.Second)
 				//log.Println("Event")
@@ -84,11 +85,13 @@ func (Mgr *Core) NewMessage(m manifest.Manifest, msg string) error {
 	timestamp := currentTime.Format("2006-01-02T15:04:05.000")
 
 	msg_stuct.Data = msg
-	msg_stuct.Sender = Mgr.profile.Name
+	msg_stuct.Sender = Mgr.profile.GetPublic()
+	msg_stuct.Sender.Avatar = ""
 	msg_stuct.SenderId = Mgr.profile.Id
 	msg_stuct.Time = timestamp + "1"
 	msg_stuct.DataType = models.MessageType
-
+	msg_stuct.Valid = false
+	Mgr.profile.Sign(msg_stuct)
 	//GET DB FROM DATABASE MGR
 	db, ok := Mgr.dbs[m]
 	if !ok {
@@ -150,8 +153,10 @@ func (Mgr *Core) GetMessages(m manifest.Manifest) ([]models.Message, error) {
 		fmt.Println("Error filtering data:", err)
 	}
 
-	msg_data := convertToMessages(data)
+	msg_data := convertToMessages(data, db)
+	Mgr.Validator(&msg_data)
 
+	// log.Println(msg_data[0])
 	// sort.Slice(msg_data, func(i, j int) bool {
 	// 	timei, _ := time.Parse(time.RFC3339, msg_data[i].Time) // Assuming Data field contains timestamp in RFC3339 format
 	// 	timej, _ := time.Parse(time.RFC3339, msg_data[j].Time)
@@ -165,25 +170,73 @@ func (Mgr *Core) GetMessages(m manifest.Manifest) ([]models.Message, error) {
 	return msg_data, nil
 }
 
-func convertToMessages(data []map[string]interface{}) []models.Message {
+func convertToMessages(data []map[string]interface{}, db *db.Database) []models.Message {
 	messages := make([]models.Message, len(data))
 
 	for i, item := range data {
 		// Assuming your map contains fields like "ID" and "Text"
 		// Adjust these according to your actual map structure
 		d_type, _ := item["datatype"].(int)
-		sender, _ := item["sender"].(string)
+		sender_map, _ := item["sender"].(map[string]interface{})
+		sender := new(models.ProfileStorePublic)
+		sender.ProfileFromMap(sender_map)
+
+		filter := map[string]interface{}{
+			"id": sender.Id, // Random integer between 0 and 100
+		}
+
+		pool, err := db.GetPool(models.UserPool)
+		if err != nil {
+			log.Println(err)
+			return nil
+		}
+
+		profiles, err := pool.Filter(filter)
+		if err != nil {
+			log.Println("Fail to get pool:", err)
+			return nil
+		}
+
+		if len(profiles) > 0 {
+			p := new(models.ProfileStorePublic)
+			p.ProfileFromMap(profiles[0])
+			sender.Avatar = p.Avatar
+		} else {
+			sender.Avatar = ""
+		}
+
 		data, _ := item["data"].(string)
 		time, _ := item["time"].(string)
 
 		// Create a new Message and append it to the result slice
 		messages[i] = models.Message{
 			DataType: d_type,
-			Sender:   sender,
+			Sender:   *sender,
 			Data:     data,
 			Time:     time,
 		}
 	}
 
 	return messages
+}
+
+func (c *Core) Validator(m *[]models.Message) {
+	for i := range *m {
+		user := c.FindUserById((*m)[i].Sender.Id)
+		if user.Id == (*m)[i].Sender.Id {
+			log.Println("This account is exsit:", user.Id)
+		}
+		//log.Println(user)
+		// if user.Id == "" {
+		// 	log.Println("Profile not found:", (*m)[i].Sender.Id)
+		// 	(*m)[i].Valid = false
+		// 	continue
+		// }
+
+		if user.ValidateMsg((*m)[i]) {
+			(*m)[i].Valid = true
+		} else {
+			(*m)[i].Valid = false
+		}
+	}
 }
