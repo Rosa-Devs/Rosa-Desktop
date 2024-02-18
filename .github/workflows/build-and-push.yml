@@ -19,7 +19,7 @@ jobs:
           submodules: recursive
       - name: Install libayatana-appindicator3-dev on Linux
         if: matrix.build.os == 'ubuntu-latest'
-        run: sudo apt-get install -y libayatana-appindicator3-dev
+        run: sudo apt-get install libappindicator3-dev gir1.2-appindicator3-0.1 -y
       - uses: dAppServer/wails-build-action@v2.2
         with:
           build-name: ${{ matrix.build.name }}
