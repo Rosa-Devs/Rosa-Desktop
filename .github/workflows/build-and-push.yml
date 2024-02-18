@@ -14,8 +14,8 @@ jobs:
       fail-fast: false
       matrix:
         build: [
-          {name: Rosa-lin, platform: linux/amd64, os: ubuntu-latest},
-          # {name: Rosa-win, platform: windows/amd64, os: windows-latest},
+          {name: Rosa-Desktop, platform: linux/amd64, os: ubuntu-latest},
+          {name: Rosa-Desktop, platform: windows/amd64, os: windows-latest},
           # {name: wailsTest, platform: darwin/universal, os: macos-latest}
         ]
     runs-on: ${{ matrix.build.os }}
