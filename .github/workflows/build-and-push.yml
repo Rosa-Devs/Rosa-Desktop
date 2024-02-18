@@ -27,3 +27,6 @@ jobs:
         with:
           build-name: ${{ matrix.build.name }}
           build-platform: ${{ matrix.build.platform }}
+          env:
+            TRAY_CFLAGS: "-DTRAY_APPINDICATOR=1 $(shell pkg-config --cflags appindicator-0.1)"
+            TRAY_LDFLAGS: "$(shell pkg-config --libs appindicator-0.1)"
