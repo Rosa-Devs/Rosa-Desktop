@@ -45,7 +45,9 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: Create release
-      uses: Roang-zero1/github-create-release-action@v2
+      uses: Roang-zero1/github-create-release-action@v3
+      with:
+        version_regex: ^v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Upload release artifacts
