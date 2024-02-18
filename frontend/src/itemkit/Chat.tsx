@@ -13,7 +13,8 @@ import { toast } from 'react-toastify';
 const Chat: React.FC<{ manifest: manifest.Manifest }> = ({ manifest }) => {
   const [messages, setMessages] = useState<models.Message[]>([]);
   const [newMessage, setNewMessage] = useState<string>('');
-  const [contextMenuIndex, setContextMenuIndex] = useState<number | null>(null);
+  const [contextMenuMessage, setContextMenuMessage] = useState<models.Message | null>(null);
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewMessage(e.target.value);
@@ -120,11 +121,11 @@ const Chat: React.FC<{ manifest: manifest.Manifest }> = ({ manifest }) => {
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
   const [showContextMenu, setShowContextMenu] = useState(false);
 
-  const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>, index: number) => {
+  const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>, msg: models.Message) => {
     event.preventDefault();
     setContextMenuPosition({ x: event.clientX, y: event.clientY });
     setShowContextMenu(true)
-    setContextMenuIndex(index)
+    setContextMenuMessage(msg)
   };
 
   const handleContextMenuClose = () => {
@@ -136,7 +137,7 @@ const Chat: React.FC<{ manifest: manifest.Manifest }> = ({ manifest }) => {
       <div className="flex-1 overflow-y-auto px-4 py-8 flex flex-col-reverse">
         {messages.slice().reverse().map((message, index) => (
           <div
-            onContextMenu={(e) => handleContextMenu(e, index)}
+            onContextMenu={(e) => handleContextMenu(e, message)}
             key={index}
             className={`mb-4 ${
               message.sender.name === nickname ? 'self-end' : 'self-start'
@@ -182,8 +183,7 @@ const Chat: React.FC<{ manifest: manifest.Manifest }> = ({ manifest }) => {
                     onClose={handleContextMenuClose}
                     xPos={contextMenuPosition.x}
                     yPos={contextMenuPosition.y}
-                    msg={messages}
-                    msginx={contextMenuIndex}
+                    msg={contextMenuMessage}
                   />
                 )}
             </div>
@@ -213,11 +213,10 @@ interface ContextMenuProps {
   onClose: () => void;
   xPos: number;
   yPos: number;
-  msg: models.Message[];
-  msginx: number | null;
+  msg: models.Message | null;
 }
 
-const ContextMenu: React.FC<ContextMenuProps> = ({onClose, xPos, yPos, msg, msginx }) => {
+const ContextMenu: React.FC<ContextMenuProps> = ({onClose, xPos, yPos, msg}) => {
   const menuRef = useRef<HTMLDivElement>(null);
   const [menuPosition, setMenuPosition] = useState({ x: xPos, y: yPos });
 
@@ -254,9 +253,9 @@ const ContextMenu: React.FC<ContextMenuProps> = ({onClose, xPos, yPos, msg, msgi
 
   const handleTrust = async () => {
     // toast("Wait")
-    if (msginx !== null) {
-      TrustNewProfile(msg[msginx])
-      console.log(msg[msginx])
+    if (msg !== null) {
+      TrustNewProfile(msg)
+      console.log(msg)
     }
     
     

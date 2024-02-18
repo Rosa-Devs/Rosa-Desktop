@@ -92,6 +92,12 @@ func (Mgr *Core) NewMessage(m manifest.Manifest, msg string) error {
 	msg_stuct.DataType = models.MessageType
 	msg_stuct.Valid = false
 	Mgr.profile.Sign(msg_stuct)
+	p_pub := Mgr.profile.GetPublic()
+	b := p_pub.ValidateMsg(*msg_stuct)
+	log.Println("Self signed msg. Sigh verified:", b)
+
+	log.Println(msg_stuct.Signature)
+
 	//GET DB FROM DATABASE MGR
 	db, ok := Mgr.dbs[m]
 	if !ok {
@@ -124,6 +130,8 @@ func (Mgr *Core) NewMessage(m manifest.Manifest, msg string) error {
 }
 
 func (Mgr *Core) GetMessages(m manifest.Manifest) ([]models.Message, error) {
+
+	startTime := time.Now()
 
 	db, ok := Mgr.dbs[m]
 	//log.Println(Mgr.dbs)
@@ -165,7 +173,10 @@ func (Mgr *Core) GetMessages(m manifest.Manifest) ([]models.Message, error) {
 	// 	return timei.After(timej)
 	// })
 
+	stopTime := time.Now()
 	//log.Println(msg_data)
+	elapsedTime := stopTime.Sub(startTime)
+	log.Printf("GetMessages execution time: %v\n", elapsedTime)
 
 	return msg_data, nil
 }
@@ -207,13 +218,17 @@ func convertToMessages(data []map[string]interface{}, db *db.Database) []models.
 
 		data, _ := item["data"].(string)
 		time, _ := item["time"].(string)
+		sign, _ := item["sign"].(string)
+		s_id, _ := item["senderid"].(string)
 
 		// Create a new Message and append it to the result slice
 		messages[i] = models.Message{
-			DataType: d_type,
-			Sender:   *sender,
-			Data:     data,
-			Time:     time,
+			DataType:  d_type,
+			Sender:    *sender,
+			SenderId:  s_id,
+			Data:      data,
+			Time:      time,
+			Signature: sign,
 		}
 	}
 
@@ -223,20 +238,45 @@ func convertToMessages(data []map[string]interface{}, db *db.Database) []models.
 func (c *Core) Validator(m *[]models.Message) {
 	for i := range *m {
 		user := c.FindUserById((*m)[i].Sender.Id)
-		if user.Id == (*m)[i].Sender.Id {
-			log.Println("This account is exsit:", user.Id)
+		if user.Id != (*m)[i].Sender.Id {
+			log.Println("This account not is exsit:", user.Id)
 		}
-		//log.Println(user)
-		// if user.Id == "" {
-		// 	log.Println("Profile not found:", (*m)[i].Sender.Id)
-		// 	(*m)[i].Valid = false
-		// 	continue
-		// }
 
-		if user.ValidateMsg((*m)[i]) {
-			(*m)[i].Valid = true
+		msg := (*m)[i]
+
+		if validated, ok := c.MessageValidateСache[msg.Data+msg.Time]; ok {
+			//log.Println("Msg:", msg.Data, "Already Validated for user:", user.Name)
+			(*m)[i].Valid = validated
+			continue
 		} else {
-			(*m)[i].Valid = false
+			if user.ValidateMsg(msg) {
+				//log.Println("Msg:", (*m)[i].Data, "Validated:", "true", "With user:", user.Name)
+				(*m)[i].Valid = true
+				//.MessageValidateСache[msg.Data+msg.Time] = true
+			} else {
+				(*m)[i].Valid = false
+				c.MessageValidateСache[msg.Data+msg.Time] = false
+				//log.Println("Msg:", (*m)[i].Data, "Validated:", "false", "With user:", user.Name)
+			}
 		}
 	}
 }
+
+// func (c *Core) Validator(m *[]models.Message) {
+// 	for i := range *m {
+// 		user := c.FindUserById((*m)[i].Sender.Id)
+// 		if user.Id != (*m)[i].Sender.Id {
+// 			log.Println("This account not is exsit:", user.Id)
+// 		}
+
+// 		msg := (*m)[i]
+
+// 		if user.ValidateMsg(msg) {
+// 			log.Println("Msg:", (*m)[i].Data, "Validated:", "true", "With user:", user.Name)
+// 			(*m)[i].Valid = true
+// 		} else {
+// 			(*m)[i].Valid = false
+// 			log.Println("Msg:", (*m)[i].Data, "Validated:", "false", "With user:", user.Name)
+// 		}
+// 	}
+// }

@@ -33,7 +33,8 @@ type Core struct {
 	//Host
 	host network.Host
 
-	dbs map[manifest.Manifest]*db.Database
+	dbs                  map[manifest.Manifest]*db.Database
+	MessageValidateСache map[string]bool
 
 	Driver     *db.DB
 	Service_DB db.Database
@@ -68,6 +69,8 @@ func (d *Core) StartManager() {
 		}
 		return
 	}
+
+	d.MessageValidateСache = make(map[string]bool)
 
 	if d.Started == true {
 		log.Println("Dbs Manager already started..")
