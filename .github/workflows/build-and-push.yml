@@ -44,3 +44,6 @@ jobs:
       - uses: ncipollo/release-action@v1
         with:
           artifacts: ${{ matrix.build.name }}.zip 
+        allowUpdates: true
+        name: Latest
+        tag: v0.0.1
