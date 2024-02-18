@@ -40,7 +40,7 @@ jobs:
           build-platform: ${{ matrix.build.platform }}
           package: true
       - name: Creaet new releasse.
-      - run: zip -r build.zip build/bin/*
-        - uses: ncipollo/release-action@v1
-          with:
-            artifacts: ${{ matrix.build.name }}.zip 
+        run: zip -r ${{ matrix.build.name }}.zip build/bin/*
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: ${{ matrix.build.name }}.zip 
