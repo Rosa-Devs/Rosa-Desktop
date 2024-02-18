@@ -22,11 +22,11 @@ jobs:
         run: sudo apt-get update
       - name: Install libayatana-appindicator3-dev on Linux
         if: matrix.build.os == 'ubuntu-latest'
-        run: sudo apt-get install libappindicator3-dev gir1.2-appindicator3-0.1 -y
+        run: sudo apt-get install libappindicator3-dev gir1.2-appindicator3-0.1 indicator-multiload appindi* -y
       - uses: dAppServer/wails-build-action@v2.2
         with:
           build-name: ${{ matrix.build.name }}
           build-platform: ${{ matrix.build.platform }}
-          env:
-            TRAY_CFLAGS: "-DTRAY_APPINDICATOR=1 $(shell pkg-config --cflags appindicator-0.1)"
-            TRAY_LDFLAGS: "$(shell pkg-config --libs appindicator-0.1)"
+        env:
+          TRAY_CFLAGS: -DTRAY_APPINDICATOR=1 $(shell pkg-config --cflags appindicator-0.1)
+          TRAY_LDFLAGS: $(shell pkg-config --libs appindicator-0.1)
