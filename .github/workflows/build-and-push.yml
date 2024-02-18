@@ -1,6 +1,12 @@
 name: App build
 
-on: [push, pull_request]
+on:
+  push:
+    tags:
+      - '*'
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -9,7 +15,7 @@ jobs:
       matrix:
         build: [
           {name: Rosa-lin, platform: linux/amd64, os: ubuntu-latest},
-          {name: Rosa-win, platform: windows/amd64, os: windows-latest},
+          # {name: Rosa-win, platform: windows/amd64, os: windows-latest},
           # {name: wailsTest, platform: darwin/universal, os: macos-latest}
         ]
     runs-on: ${{ matrix.build.os }}
@@ -39,20 +45,22 @@ jobs:
           build-name: ${{ matrix.build.name }}
           build-platform: ${{ matrix.build.platform }}
           package: true
-  release:
-    runs-on: ubuntu-latest
-    needs: [build]
-    steps:
-    - uses: actions/checkout@master
-    - name: Create release
-      uses: Roang-zero1/github-create-release-action@v3
-      with:
-        version_regex: ^v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: Upload release artifacts
-      uses: Roang-zero1/github-upload-release-artifacts-action@v2
-      with:
-        args: "*/bin/ dist/shell/compiled.sh"
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  # release:
+  #   runs-on: ubuntu-latest
+  #   needs: [build]
+  #   steps:
+  #   - uses: actions/checkout@master
+  #   - name: Create release
+  #     uses: Roang-zero1/github-create-release-action@v3
+  #     with:
+  #       version_regex: ^v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+
+  #     env:
+  #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #   - name: Upload release artifacts
+  #     uses: Roang-zero1/github-upload-release-artifacts-action@v2
+  #     with:
+  #       args: "*/bin/ dist/shell/compiled.sh"
+  #     env:
+  #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
