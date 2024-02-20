@@ -235,6 +235,7 @@ func (d *Core) AddManifets(manifestJson string) error {
 	if err != nil {
 		log.Println("Not recreating pool:", err)
 	}
+
 	pool, err := d.Service_DB.GetPool("manifests")
 	if err != nil {
 		log.Println("Fail to get pool", err)
@@ -264,6 +265,10 @@ func (d *Core) AddManifets(manifestJson string) error {
 		return fmt.Errorf("Not reacreatinng db, err:", err)
 	}
 	db := d.Driver.GetDb(*m)
+	err = db.CreatePool(models.UserPool)
+	if err != nil {
+		log.Println("Not recreating pool:", err)
+	}
 	db.StartWorker(60)
 	d.dbs[*m] = &db
 

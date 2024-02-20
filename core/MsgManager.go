@@ -239,7 +239,7 @@ func (c *Core) Validator(m *[]models.Message) {
 	for i := range *m {
 		user := c.FindUserById((*m)[i].Sender.Id)
 		if user.Id != (*m)[i].Sender.Id {
-			log.Println("This account not is exsit:", user.Id)
+			//log.Println("This account not is exsit:", user.Id)
 		}
 
 		msg := (*m)[i]
