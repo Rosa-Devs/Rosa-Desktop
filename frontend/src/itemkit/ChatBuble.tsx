@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
-import { manifest } from "../../wailsjs/go/models";
-import { ChangeListeningDb, DeleteManifest, ExportManifest } from "../../wailsjs/go/core/Core";
 import Optional from "../models/Optional";
 import { BrowserOpenURL } from "../../wailsjs/runtime/runtime";
+import { ExportManifest } from "../../wailsjs/go/app/App";
+import { DeleteManifest } from "../api/api";
+import { models } from "../models/manifest";
 
 // ContextMenu component
 
@@ -59,7 +60,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ onDelete, onClose, onExport, 
 };
 
 // Buble component
-const Buble: React.FC<{ contact: manifest.Manifest; setManifest: React.Dispatch<React.SetStateAction<any>> }> = ({ contact, setManifest }) => {
+const Buble: React.FC<{ contact: models.Manifest; setManifest: React.Dispatch<React.SetStateAction<any>> }> = ({ contact, setManifest }) => {
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
 
   const handleBtnClick = () => {

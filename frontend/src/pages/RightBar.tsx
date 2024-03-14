@@ -1,25 +1,24 @@
 import React, { useState, useEffect, ChangeEvent, createRef} from 'react';
-import { ChangeListeningDb, ManifestList, Nodes } from "../../wailsjs/go/core/Core";
-import { manifest} from "../../wailsjs/go/models";
 import Buble from '../itemkit/ChatBuble'; // Import the Buble component if not already imported
-import { AddManifets, CreateManifest,} from '../../wailsjs/go/core/Core';
 import { CgAdd } from "react-icons/cg";
 import { MdCreate } from "react-icons/md";
 import { Cropper, ReactCropperElement } from 'react-cropper';
 import 'cropperjs/dist/cropper.css';
 import { toast } from 'react-toastify';
 import Optional from '../models/Optional';
+import { AddManifest, CreateNewManifest, ListManifest } from '../api/api';
+import { models } from '../models/manifest';
 
 
 const RightSidebar = ({ setManifest }: { setManifest: React.Dispatch<React.SetStateAction<any>> }) => {
-  const [contacts, setContacts] = useState<manifest.Manifest[] | null>(null);
+  const [contacts, setContacts] = useState<models.Manifest[] | null>(null);
   const [isUploadPopupOpen, setIsUploadPopupOpen] = useState(false);
   const [isCreatePopupOpen, setIsCreatePopupOpen] = useState(false);
 
   useEffect(() => {
     const fetchContacts = async () => {
       try {
-        const contactsData = await ManifestList();
+        const contactsData = await ListManifest();
         setContacts(contactsData);
       } catch (error) {
         console.error('Error fetching contacts:', error);
@@ -88,22 +87,22 @@ const RightSidebar = ({ setManifest }: { setManifest: React.Dispatch<React.SetSt
     });
   };
 
-  const [nodes, setnodes] = useState(0);
-  useEffect(() => {
-    const fetchNodes = async () => {
-      try {
-        const contactsData = await Nodes();
-        setnodes(contactsData);
-      } catch (error) {
-        console.error('Error fetching contacts:', error);
-      }
-      setTimeout(() => {
-        fetchNodes();
-      }, 2000);
-    };
+  // const [nodes, setnodes] = useState(0);
+  // useEffect(() => {
+  //   const fetchNodes = async () => {
+  //     try {
+  //       const contactsData = await Nodes();
+  //       setnodes(contactsData);
+  //     } catch (error) {
+  //       console.error('Error fetching contacts:', error);
+  //     }
+  //     setTimeout(() => {
+  //       fetchNodes();
+  //     }, 2000);
+  //   };
 
-    fetchNodes();
-  }, []);
+  //   fetchNodes();
+  // }, []);
   
   
   
@@ -198,9 +197,14 @@ const CreateManifestPopUp: React.FC<CreateManifestPopUpProps> = ({ close }) => {
       // Convert the JSON object to a JSON string
       const jsonString = JSON.stringify(jsonData);
 
-      const manifest = await CreateManifest(name, jsonString)
+      const manifest = await CreateNewManifest({name: name,avatar: jsonString})
 
-      AddManifets(manifest)
+      if (typeof manifest === 'string') {
+        toast("Err")
+      } else {
+        AddManifest(manifest)
+      }
+      
 
       toast("New chanell created!")
       close(false)

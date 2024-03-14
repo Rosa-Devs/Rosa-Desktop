@@ -1,7 +1,7 @@
 import { ChangeEvent, createRef, useState } from "react";
 import { Cropper, ReactCropperElement } from 'react-cropper';
 import { toast } from "react-toastify";
-import { CreateNewAccount } from "../../wailsjs/go/core/Core";
+import { CreateNewAccount } from "../api/api";
 
 
 
@@ -44,7 +44,7 @@ const Login = () => {
         return
       }
 
-      await CreateNewAccount(name, onCrop())
+      await CreateNewAccount({name: name, avatar: onCrop()})
 
       toast("Hello im jarvis.... Just kidding..")
       toast("Please wait a sec we are doing some cryptography :)")

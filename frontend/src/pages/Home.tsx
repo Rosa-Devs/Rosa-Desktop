@@ -1,15 +1,16 @@
 import RightSidebar from "./RightBar";
-import { StartManager, AddManifets, ManifestList } from "../../wailsjs/go/core/Core"
+
 import { useState } from "react";
 import Chat from "../itemkit/Chat";
 import TitleBar from "../itemkit/TitleBar";
-import { manifest } from "../../wailsjs/go/models";
+import { models } from "../models/manifest";
+
 
 
 
 const Home = () => {
 
-  const initialManifest = manifest.Manifest.createFrom({
+  const initialManifest = models.Manifest.createFrom({
     name: "Initial Name",
     pubsub: "Initial Pubsub",
     optional: "{\"Image\": \"http://localhost\"}"

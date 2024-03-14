@@ -1,16 +1,15 @@
 // Chat.tsx
 
 import React, { useState, useEffect, useRef } from 'react';
-import { ChangeListeningDb, GetMessages, GetProfile, NewMessage,TrustNewProfile } from '../../wailsjs/go/core/Core';
-import { models, manifest } from '../../wailsjs/go/models';
-import { EventsOn, EventsOff } from '../../wailsjs/runtime/runtime'
+import { EventsOn, EventsOff, LogPrint } from '../../wailsjs/runtime/runtime'
 import Valid from "../asset/valid.png"
 import Err from "../asset/error.svg"
 import { toast } from 'react-toastify';
+import { models } from "../models/manifest"
+import { ChangeListeningDb, MessagesList, NewMessage, Trust } from '../api/api';
+import { GetAddres, GetProfile } from '../../wailsjs/go/app/App';
 
-
-
-const Chat: React.FC<{ manifest: manifest.Manifest }> = ({ manifest }) => {
+const Chat: React.FC<{ manifest: models.Manifest }> = ({ manifest }) => {
   const [messages, setMessages] = useState<models.Message[]>([]);
   const [newMessage, setNewMessage] = useState<string>('');
   const [contextMenuMessage, setContextMenuMessage] = useState<models.Message | null>(null);
@@ -25,8 +24,8 @@ const Chat: React.FC<{ manifest: manifest.Manifest }> = ({ manifest }) => {
       //setMessages([...messages, { text: newMessage, sender: 'user' }]);
       setNewMessage('');
 
-      NewMessage(manifest, newMessage)
-
+      // NewMessage(manifest, newMessage)
+      NewMessage({msg: newMessage, manifest})
       
       // You can handle sending the message to the server or any other logic here
     }
@@ -37,11 +36,14 @@ const Chat: React.FC<{ manifest: manifest.Manifest }> = ({ manifest }) => {
   const fetchMsg = async () => {
     try {
       // Make your asynchronous API call or fetch data here
-      const data = await GetMessages(manifest);
+      const data = await MessagesList(manifest);
       //console.log(data);
 
       //console.log(data[0].time)
       //console.log(new Date(data[0].time).getTime())
+      if (data === null) {
+        return null
+      }
       data.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
       //console.log(data)
       return data;
@@ -107,14 +109,61 @@ const Chat: React.FC<{ manifest: manifest.Manifest }> = ({ manifest }) => {
     ChangeListeningDb(manifest) 
   }, [manifest])
 
+
+
+  const [eventSource, setEventSource] = useState<EventSource | null>(null);
+
   useEffect(() => {
-    EventsOff("update")
-    EventsOn("update", () => {
-      // Fetch data on update event
-      fetchDataInterval()
-      console.log("Db update event")
-    })
-  })
+    const setupEventSource = async () => {
+      console.log('MOUNTED');
+
+      // Close the existing EventSource connection if it exists
+      if (eventSource !== null) {
+        eventSource.close();
+      }
+
+      // Get the address dynamically
+      const address = await GetAddres()
+      // const address = "localhost:8080";
+      const newEventSource = new EventSource(`http://${address}/event/listen`);
+
+      // Set the event listeners for the new EventSource object
+      newEventSource.addEventListener("message", (event) => {
+        console.log("Received event:", event.data);
+        // Add your event handling logic here
+        fetchDataInterval()
+      });
+
+      newEventSource.onerror = function(error) {
+        console.error('EventSource failed:', error);
+      };
+
+      // Set the new EventSource object to state
+      setEventSource(newEventSource);
+    };
+
+    // Call setupEventSource when the component mounts or when the manifest changes
+    setupEventSource();
+
+    // Clean up the EventSource connection when the component unmounts or when the manifest changes
+    return () => {
+      if (eventSource !== null) {
+        eventSource.close();
+      }
+    };
+  }, [manifest]); // Dependency array includes 'manifest'
+
+  
+
+
+  // useEffect(() => {
+  //   EventsOff("update")
+  //   EventsOn("update", () => {
+  //     // Fetch data on update event
+  //     fetchDataInterval()
+  //     console.log("Db update event")
+  //   })
+  // })
   
   
 
@@ -254,7 +303,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({onClose, xPos, yPos, msg}) => 
   const handleTrust = async () => {
     // toast("Wait")
     if (msg !== null) {
-      TrustNewProfile(msg)
+      Trust(msg)
       console.log(msg)
     }
     

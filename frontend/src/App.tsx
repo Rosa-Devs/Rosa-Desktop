@@ -2,8 +2,9 @@ import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements } 
 import Home from "./pages/Home";
 import ChatBar from "./pages/RightBar";
 import { useEffect, useState } from "react";
-import { Autorized, StartManager } from "../wailsjs/go/core/Core";
 import Login from "./pages/Login";
+import {StartManager} from "../wailsjs/go/app/App"
+import { Authorized } from "./api/api"
 
 
 
@@ -17,7 +18,7 @@ function App() {
       }, 1000)
 
       setTimeout(async () => {
-        setIsAuthorized(await Autorized())
+        setIsAuthorized(await Authorized())
         
       }, 3000);
 
@@ -43,4 +44,5 @@ function App() {
     )
 }
 
-export default App
+export default App;
+
