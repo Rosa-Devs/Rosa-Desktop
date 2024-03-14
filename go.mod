@@ -6,17 +6,8 @@ toolchain go1.22.1
 
 require (
 	github.com/Rosa-Devs/Database v0.0.7
-	github.com/libp2p/go-libp2p v0.32.1
-	github.com/libp2p/go-libp2p-kad-dht v0.25.2
-	github.com/libp2p/go-libp2p-pubsub v0.10.0
+	github.com/Rosa-Devs/core v0.1.6
 	github.com/wailsapp/wails/v2 v2.8.0
-)
-
-require (
-	github.com/Rosa-Devs/Database v0.0.7
-	github.com/libp2p/go-libp2p v0.33.0 // indirect
-	github.com/libp2p/go-libp2p-kad-dht v0.25.2 // indirect
-	github.com/libp2p/go-libp2p-pubsub v0.10.0 // indirect
 )
 
 require (
@@ -69,10 +60,13 @@ require (
 	github.com/libp2p/go-buffer-pool v0.1.0 // indirect
 	github.com/libp2p/go-cidranger v1.1.0 // indirect
 	github.com/libp2p/go-flow-metrics v0.1.0 // indirect
+	github.com/libp2p/go-libp2p v0.33.0 // indirect
 	github.com/libp2p/go-libp2p-asn-util v0.4.1 // indirect
 	github.com/libp2p/go-libp2p-gostream v0.6.0 // indirect
 	github.com/libp2p/go-libp2p-http v0.5.0 // indirect
+	github.com/libp2p/go-libp2p-kad-dht v0.25.2 // indirect
 	github.com/libp2p/go-libp2p-kbucket v0.6.3 // indirect
+	github.com/libp2p/go-libp2p-pubsub v0.10.0 // indirect
 	github.com/libp2p/go-libp2p-record v0.2.0 // indirect
 	github.com/libp2p/go-libp2p-routing-helpers v0.7.2 // indirect
 	github.com/libp2p/go-msgio v0.3.0 // indirect

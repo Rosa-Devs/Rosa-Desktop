@@ -10,6 +10,8 @@ git.apache.org/thrift.git v0.0.0-20180902110319-2566ecd5d999/go.mod h1:fPE2ZNJGy
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/Rosa-Devs/Database v0.0.7 h1:Gmm1k8wg8jqMqOOCwAypZJxGL0dBigdWkm2MGG/UtK0=
 github.com/Rosa-Devs/Database v0.0.7/go.mod h1:NWMzm329NKvxo7Dz3+10PVavQCJnJYa7UQhLSnNxrbQ=
+github.com/Rosa-Devs/core v0.1.6 h1:IHUqQyPCQja5BTvFthJXrHxB4inbKC+NWfz5Ibzp8M4=
+github.com/Rosa-Devs/core v0.1.6/go.mod h1:E8u6rm3WdRuO7Kau+OBoP4T5I63dmp6bPUOQrIN5bIA=
 github.com/anmitsu/go-shlex v0.0.0-20161002113705-648efa622239/go.mod h1:2FmKhYUyUczH0OGQWaF5ceTx0UBShxjsH6f8oGKYe2c=
 github.com/benbjohnson/clock v1.1.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
 github.com/benbjohnson/clock v1.3.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
